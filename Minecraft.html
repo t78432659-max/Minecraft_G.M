@@ -1,0 +1,4015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="screen-orientation" content="landscape" />
+  <meta name="x5-orientation" content="landscape" />
+  <meta name="full-screen" content="yes" />
+  <title>Minecraft Infinite Survival + Mob Textures, Food & Lifesteal</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background: #2b2b2b;
+      color: #ffffff;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .screen.active {
+      display: flex;
+      z-index: 5;
+    }
+
+    /* 1. MAIN MENU */
+    #menu-screen {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 36px;
+      background:
+        linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.55)),
+        repeating-linear-gradient(
+          0deg,
+          #4a4a4a 0px, #4a4a4a 32px,
+          #3d3d3d 32px, #3d3d3d 64px
+        );
+    }
+
+    #left-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 250px;
+      z-index: 10;
+    }
+
+    #game-title {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-shadow: 3px 3px 0 #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .mc-btn {
+      padding: 12px 16px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffffff;
+      background: #6c6c6c;
+      border: 3px solid #1e1e1e;
+      box-shadow:
+        inset 3px 3px 0 #9e9e9e,
+        inset -3px -3px 0 #474747;
+      text-shadow: 2px 2px 0 #222222;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .mc-btn:active {
+      background: #585858;
+      box-shadow:
+        inset -3px -3px 0 #8a8a8a,
+        inset 3px 3px 0 #383838;
+      transform: translateY(2px);
+    }
+
+    .mc-btn.selected {
+      background: #4caf50;
+      box-shadow:
+        inset 3px 3px 0 #81c784,
+        inset -3px -3px 0 #2e7d32;
+    }
+
+    #right-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    #skin-box {
+      width: 145px;
+      height: 165px;
+      background: rgba(0, 0, 0, 0.55);
+      border: 3px solid #1e1e1e;
+      box-shadow: inset 2px 2px 0 #777777;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #skin-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+
+    #skin-label {
+      color: #ffd700;
+      font-size: 13px;
+      font-weight: bold;
+      text-shadow: 1px 1px 0 #000;
+    }
+
+    /* 2. PLAY SCREEN */
+    #play-screen {
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 16px 24px;
+      gap: 12px;
+      overflow-y: auto;
+      background:
+        linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.65)),
+        repeating-linear-gradient(
+          0deg,
+          #444444 0px, #444444 32px,
+          #383838 32px, #383838 64px
+        );
+    }
+
+    #top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .top-right-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .corner-btn {
+      width: 125px;
+      padding: 11px 12px;
+      font-size: 15px;
+    }
+
+    .server-accent-btn {
+      background: #1976d2;
+      box-shadow:
+        inset 3px 3px 0 #64b5f6,
+        inset -3px -3px 0 #0d47a1;
+    }
+
+    #saved-worlds-container {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    #saved-worlds-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffd700;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .world-card {
+      background: rgba(35, 35, 35, 0.88);
+      border: 3px solid #1b1b1b;
+      box-shadow: inset 2px 2px 0 #6e6e6e, inset -2px -2px 0 #2b2b2b;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .world-card-info {
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .world-card-name {
+      font-size: 15px;
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 3px;
+    }
+
+    .world-card-meta {
+      font-size: 12px;
+      color: #cccccc;
+    }
+
+    .card-action-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .world-play-badge {
+      background: #4caf50;
+      border: 2px solid #1b5e20;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 1px 1px 0 #000;
+      cursor: pointer;
+    }
+
+    .world-play-badge:active {
+      transform: translateY(2px);
+    }
+
+    .delete-item-btn {
+      background: #c62828;
+      border: 2px solid #7f0000;
+      box-shadow: inset 2px 2px 0 #ef5350, inset -2px -2px 0 #8e0000;
+      padding: 7px 11px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 1px 1px 0 #000;
+      cursor: pointer;
+    }
+
+    .delete-item-btn:active {
+      transform: translateY(2px);
+    }
+
+    #play-center-info {
+      text-align: center;
+      color: #dddddd;
+      font-size: 14px;
+      padding: 18px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 2px solid #222;
+      text-shadow: 1px 1px 0 #000;
+    }
+
+    /* 3. CREATE WORLD SCREEN */
+    #create-screen {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 16px 28px;
+      overflow-y: auto;
+      background:
+        linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)),
+        repeating-linear-gradient(
+          0deg,
+          #3f3f3f 0px, #3f3f3f 32px,
+          #323232 32px, #323232 64px
+        );
+    }
+
+    #create-heading {
+      font-size: 21px;
+      font-weight: bold;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    #mode-row, .diff-row-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .mode-btn {
+      width: 130px;
+      padding: 10px 12px;
+      font-size: 15px;
+    }
+
+    .diff-btn {
+      width: 110px;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+
+    #btn-create-world {
+      width: 340px;
+      max-width: 92%;
+      padding: 15px 22px;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      background: #3b7a3e;
+      box-shadow:
+        inset 3px 3px 0 #66bb6a,
+        inset -3px -3px 0 #1b5e20;
+    }
+
+    .screen-back-btn {
+      position: absolute;
+      top: 14px;
+      left: 20px;
+      width: 110px;
+      padding: 8px 12px;
+      font-size: 14px;
+      z-index: 15;
+    }
+
+    /* SERVER BROWSER & SERVER CREATOR SCREENS */
+    #server-screen, #server-create-screen {
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 56px 20px 20px;
+      gap: 12px;
+      overflow-y: auto;
+      background:
+        linear-gradient(rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0.74)),
+        repeating-linear-gradient(
+          0deg,
+          #3d3d3d 0px, #3d3d3d 32px,
+          #2f2f2f 32px, #2f2f2f 64px
+        );
+    }
+
+    #btn-big-create-server {
+      width: 380px;
+      max-width: 95%;
+      padding: 16px 24px;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      background: #2e7d32;
+      box-shadow:
+        inset 3px 3px 0 #81c784,
+        inset -3px -3px 0 #1b5e20;
+    }
+
+    .net-status-banner {
+      width: 100%;
+      max-width: 720px;
+      background: rgba(25, 118, 210, 0.25);
+      border: 2px solid #64b5f6;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #e3f2fd;
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    .join-code-box {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      background: rgba(32, 32, 32, 0.92);
+      border: 2px solid #64b5f6;
+      padding: 8px 10px;
+    }
+
+    #server-list-box {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .server-card {
+      background: rgba(32, 32, 32, 0.92);
+      border: 3px solid #181818;
+      box-shadow: inset 2px 2px 0 #757575, inset -2px -2px 0 #262626;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .server-card-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #ffd700;
+      margin-bottom: 3px;
+    }
+
+    .server-card-sub {
+      font-size: 12px;
+      color: #dcdcdc;
+      line-height: 1.35;
+    }
+
+    .server-join-btn {
+      padding: 9px 14px;
+      font-size: 13px;
+      background: #1976d2;
+      box-shadow:
+        inset 2px 2px 0 #64b5f6,
+        inset -2px -2px 0 #0d47a1;
+      flex-shrink: 0;
+    }
+
+    .server-form-card {
+      width: 100%;
+      max-width: 660px;
+      background: rgba(42, 42, 42, 0.92);
+      border: 3px solid #1b1b1b;
+      box-shadow: inset 2px 2px 0 #707070, inset -2px -2px 0 #292929;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .server-field-label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #ffd700;
+      margin-bottom: 4px;
+    }
+
+    .server-input {
+      width: 100%;
+      padding: 9px 11px;
+      font-size: 14px;
+      background: #222;
+      color: #fff;
+      border: 2px solid #777;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .server-opt-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .srv-opt-btn {
+      padding: 8px 11px;
+      font-size: 12px;
+      flex: 1 1 110px;
+    }
+
+    #btn-launch-server {
+      width: 100%;
+      max-width: 660px;
+      padding: 14px 20px;
+      font-size: 18px;
+      font-weight: 900;
+      background: #2e7d32;
+      box-shadow:
+        inset 3px 3px 0 #81c784,
+        inset -3px -3px 0 #1b5e20;
+    }
+
+    /* 4. WORLD GAMEPLAY SCREEN */
+    #world-screen.active {
+      display: block;
+    }
+
+    #crosshair {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 16px;
+      height: 16px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 12;
+    }
+
+    #crosshair::before, #crosshair::after {
+      content: "";
+      position: absolute;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 0 2px #000;
+    }
+
+    #crosshair::before { top: 7px; left: 0; width: 16px; height: 2px; }
+    #crosshair::after { left: 7px; top: 0; width: 2px; height: 16px; }
+
+    #mine-bar-wrap {
+      display: none;
+      position: fixed;
+      top: calc(50% + 16px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 84px;
+      height: 8px;
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 13;
+    }
+
+    #mine-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: #ffd700;
+    }
+
+    #portal-warp-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle, rgba(170, 0, 255, 0.35), rgba(74, 20, 140, 0.85));
+      pointer-events: none;
+      z-index: 14;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px #000;
+    }
+
+    #world-top-hud {
+      position: fixed;
+      top: 8px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    #world-info-box {
+      background: rgba(0, 0, 0, 0.58);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    #hud-biome {
+      color: #81c784;
+      font-weight: bold;
+    }
+
+    #hud-dim {
+      color: #ce93d8;
+      font-weight: bold;
+    }
+
+    #hud-server {
+      color: #64b5f6;
+      font-weight: bold;
+    }
+
+    .hud-btn-group {
+      pointer-events: auto;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .small-mc-btn {
+      padding: 6px 10px;
+      font-size: 12px;
+      width: auto;
+    }
+
+    .view-toggle-btn {
+      background: #8e24aa;
+      box-shadow:
+        inset 3px 3px 0 #ce93d8,
+        inset -3px -3px 0 #4a148c;
+    }
+
+    #msg-toast {
+      position: fixed;
+      top: 104px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.82);
+      color: #ffd700;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      z-index: 18;
+      display: none;
+      white-space: nowrap;
+    }
+
+    #survival-bars {
+      position: fixed;
+      bottom: 62px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      z-index: 15;
+      background: rgba(0, 0, 0, 0.45);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .bar-row {
+      display: flex;
+      gap: 3px;
+      font-size: 14px;
+      line-height: 1;
+      text-shadow: 1px 1px 0 #000;
+    }
+
+    #hotbar {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.65);
+      padding: 6px;
+      border-radius: 10px;
+      z-index: 15;
+      min-height: 36px;
+      align-items: center;
+      max-width: 56vw;
+      overflow-x: auto;
+    }
+
+    .slot {
+      padding: 6px 9px;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: bold;
+      border: 2px solid transparent;
+      text-shadow: 1px 1px 2px #000;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .slot.active {
+      border-color: #ffd700;
+      transform: scale(1.06);
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 14px;
+      z-index: 16;
+      display: flex;
+      gap: 8px;
+      touch-action: none;
+    }
+
+    #move-pad { left: 12px; flex-direction: column; align-items: center; }
+    .row { display: flex; gap: 8px; }
+    #action-pad { right: 12px; flex-direction: column; align-items: flex-end; }
+
+    .btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.35);
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      font-size: 11px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+    }
+
+    .btn:active { background: rgba(255,255,255,0.25); }
+
+    #btn-rotate-screen {
+      width: auto;
+      min-width: 68px;
+      height: 34px;
+      padding: 0 10px;
+      font-size: 10px;
+      background: rgba(25, 118, 210, 0.78);
+      border-color: rgba(144, 202, 249, 0.85);
+    }
+
+    /* Crafting Modal */
+    #craft-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      z-index: 25;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    #craft-box {
+      width: 560px;
+      max-width: 97%;
+      max-height: 92%;
+      overflow-y: auto;
+      background: #555555;
+      border: 3px solid #1b1b1b;
+      box-shadow: inset 3px 3px 0 #888888, inset -3px -3px 0 #333333;
+      padding: 12px 14px;
+    }
+
+    #craft-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    #resource-counts {
+      font-size: 12px;
+      background: #383838;
+      padding: 6px 10px;
+      border: 2px solid #222;
+      margin-bottom: 8px;
+      color: #ffd700;
+      line-height: 1.4;
+    }
+
+    #tier-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .tier-tab {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .craft-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .craft-item {
+      background: #444444;
+      border: 2px solid #222;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+    }
+
+    .craft-item-title { font-weight: bold; font-size: 13px; color: #ffffff; }
+    .craft-recipe { color: #cccccc; font-size: 11px; }
+    .craft-do-btn { margin-top: 4px; padding: 6px 8px; font-size: 12px; }
+
+    #gallery-input { display: none; }
+
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      z-index: 30;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    #modal-box {
+      width: 390px;
+      max-width: 94%;
+      max-height: 90%;
+      overflow-y: auto;
+      background: #555555;
+      border: 3px solid #1b1b1b;
+      box-shadow: inset 3px 3px 0 #888888, inset -3px -3px 0 #333333;
+      padding: 16px 18px;
+      text-align: center;
+    }
+
+    #modal-title { font-size: 19px; font-weight: bold; margin-bottom: 12px; }
+
+    .opt-block {
+      background: #444444;
+      border: 2px solid #222;
+      padding: 10px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .opt-label {
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: #ffd700;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #4caf50;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. MAIN MENU -->
+  <div id="menu-screen" class="screen active">
+    <div id="left-panel">
+      <div id="game-title">MINECRAFT</div>
+      <button type="button" class="mc-btn" id="btn-play" onclick="handlePlayClick()">Play</button>
+      <button type="button" class="mc-btn" id="btn-skin" onclick="handleSkinClick()">Skin</button>
+      <button type="button" class="mc-btn" id="btn-options" onclick="handleOptionsClick()">Options</button>
+    </div>
+
+    <div id="right-panel">
+      <div id="skin-box">
+        <img id="skin-preview" alt="GM Red Skin" />
+      </div>
+      <div id="skin-label">Skin: Red GM</div>
+    </div>
+  </div>
+
+  <!-- 2. PLAY SCREEN -->
+  <div id="play-screen" class="screen">
+    <div id="top-bar">
+      <button type="button" class="mc-btn corner-btn" id="btn-play-back" onclick="showScreen('menu-screen')">Back</button>
+      <div class="top-right-actions">
+        <button type="button" class="mc-btn corner-btn" id="btn-open-create" onclick="showScreen('create-screen')">Create</button>
+        <button type="button" class="mc-btn corner-btn server-accent-btn" id="btn-open-server" onclick="openServerBrowser()">Server</button>
+      </div>
+    </div>
+
+    <div id="saved-worlds-container">
+      <div id="saved-worlds-title">Your Worlds</div>
+      <div id="saved-worlds-list"></div>
+      <div id="play-center-info">
+        اوپر کونے میں <b>Create</b> دبا کر نیا ورلڈ بنائیں، <b>Server</b> دبا کر سرور بنائیں/جوڑیں، یا نیچے بنے ورلڈ کے پاس <b>Play</b> / <b>Delete</b> دبائیں۔
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. CREATE WORLD SCREEN -->
+  <div id="create-screen" class="screen">
+    <button type="button" class="mc-btn screen-back-btn" id="create-back-btn" onclick="showScreen('play-screen')">Back</button>
+    <div id="create-heading">Mode & Difficulty</div>
+    <div id="mode-row">
+      <button type="button" class="mc-btn mode-btn selected" id="btn-mode-survival" onclick="selectMode('Survival')">Survival</button>
+      <button type="button" class="mc-btn mode-btn" id="btn-mode-creative" onclick="selectMode('Creative')">Creative</button>
+    </div>
+    <div class="diff-row-group">
+      <button type="button" class="mc-btn diff-btn" id="btn-diff-peaceful" onclick="selectDifficulty('Peaceful')">Peaceful</button>
+      <button type="button" class="mc-btn diff-btn selected" id="btn-diff-hard" onclick="selectDifficulty('Hard')">Hard</button>
+      <button type="button" class="mc-btn diff-btn" id="btn-diff-hardcore" onclick="selectDifficulty('Hardcore')">Hardcore</button>
+    </div>
+    <button type="button" class="mc-btn" id="btn-create-world" onclick="handleCreateWorldClick()">Create World</button>
+  </div>
+
+  <!-- SERVER BROWSER SCREEN -->
+  <div id="server-screen" class="screen">
+    <button type="button" class="mc-btn screen-back-btn" onclick="showScreen('play-screen')">Back</button>
+    <button type="button" class="mc-btn" id="btn-big-create-server" onclick="openServerCreator()">+ CREATE SERVER</button>
+
+    <div class="net-status-banner">
+      📡 <b>Web Multiplayer Rooms:</b> یہاں سرور کوڈ سے جوائن کریں، نیا سرور بنائیں، یا کسی بھی سرور کو <b>Delete</b> کریں۔
+    </div>
+
+    <div class="join-code-box">
+      <input type="text" id="join-code-input" class="server-input" placeholder="Server Code ڈالیں (جیسے LAN-1234 یا PUBLIC-101)" />
+      <button type="button" class="mc-btn server-join-btn" onclick="joinByCodeInput()">Join Code</button>
+    </div>
+
+    <div id="server-list-box"></div>
+  </div>
+
+  <!-- SERVER CREATOR SCREEN -->
+  <div id="server-create-screen" class="screen">
+    <button type="button" class="mc-btn screen-back-btn" onclick="showScreen('server-screen')">Back</button>
+    <div id="create-heading">Server Settings</div>
+
+    <div class="server-form-card">
+      <div>
+        <div class="server-field-label">Server Name</div>
+        <input type="text" id="srv-name-input" class="server-input" value="GM Lifesteal Server" maxlength="28" />
+      </div>
+
+      <div>
+        <div class="server-field-label">Server Type / Mode</div>
+        <div class="server-opt-row" id="srv-type-group">
+          <button type="button" class="mc-btn srv-opt-btn selected" data-val="Lifesteal" onclick="setSrvOpt('type', 'Lifesteal', this)">❤️ Lifesteal</button>
+          <button type="button" class="mc-btn srv-opt-btn" data-val="Survival" onclick="setSrvOpt('type', 'Survival', this)">⚔️ Survival</button>
+          <button type="button" class="mc-btn srv-opt-btn" data-val="Creative" onclick="setSrvOpt('type', 'Creative', this)">🧱 Creative</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="server-field-label">Time Settings</div>
+        <div class="server-opt-row" id="srv-time-group">
+          <button type="button" class="mc-btn srv-opt-btn selected" data-val="cycle" onclick="setSrvOpt('timeMode', 'cycle', this)">🌓 Day/Night Cycle</button>
+          <button type="button" class="mc-btn srv-opt-btn" data-val="day" onclick="setSrvOpt('timeMode', 'day', this)">☀️ Always Day</button>
+          <button type="button" class="mc-btn srv-opt-btn" data-val="night" onclick="setSrvOpt('timeMode', 'night', this)">🌙 Always Night</button>
+          <button type="button" class="mc-btn srv-opt-btn" data-val="fast" onclick="setSrvOpt('timeMode', 'fast', this)">⚡ Fast Time</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="server-field-label">Combat & Hearts</div>
+        <div class="server-opt-row" id="srv-pvp-group">
+          <button type="button" class="mc-btn srv-opt-btn selected" data-val="on" onclick="setSrvOpt('pvp', 'on', this)">🗡️ PVP: ON</button>
+          <button type="button" class="mc-btn srv-opt-btn" data-val="off" onclick="setSrvOpt('pvp', 'off', this)">🕊️ PVP: OFF</button>
+        </div>
+        <div class="server-opt-row" style="margin-top:8px;" id="srv-hearts-group">
+          <button type="button" class="mc-btn srv-opt-btn selected" data-val="10" onclick="setSrvOpt('startHearts', 10, this)">10 Hearts</button>
+          <button type="button" class="mc-btn srv-opt-btn" data-val="5" onclick="setSrvOpt('startHearts', 5, this)">5 Hearts (Hard Lifesteal)</button>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="mc-btn" id="btn-launch-server" onclick="createAndStartServer()">Create & Start Server</button>
+  </div>
+
+  <!-- 4. INFINITE WORLD SCREEN -->
+  <div id="world-screen" class="screen">
+    <div id="world-top-hud">
+      <div id="world-info-box">
+        <div id="hud-mode">Mode: Survival (Hard)</div>
+        <div id="hud-server" style="display:none;"></div>
+        <div id="hud-dim">Dimension: Overworld 🌍</div>
+        <div id="hud-biome">Biome: Plains 🌿</div>
+        <div id="hud-time">Time: Day</div>
+        <div id="hud-pos">X: 0, Y: 0, Z: 0</div>
+      </div>
+      <div class="hud-btn-group">
+        <button type="button" class="mc-btn small-mc-btn view-toggle-btn" id="btn-view-mode" onclick="cycleCameraPersonView()">1ST PERSON</button>
+        <button type="button" class="mc-btn small-mc-btn" id="btn-open-craft" onclick="openCraftModal()">CRAFT</button>
+        <button type="button" class="mc-btn small-mc-btn" id="btn-exit-world" onclick="exitWorldToMenu()">Menu</button>
+      </div>
+    </div>
+
+    <div id="portal-warp-overlay">🌀 Entering Nether Portal...</div>
+    <div id="msg-toast"></div>
+    <div id="crosshair"></div>
+    <div id="mine-bar-wrap"><div id="mine-bar-fill"></div></div>
+
+    <div id="survival-bars">
+      <div class="bar-row" id="hearts-row"></div>
+      <div class="bar-row" id="food-row"></div>
+    </div>
+
+    <div id="hotbar"></div>
+
+    <div id="move-pad" class="controls">
+      <div class="row"><button type="button" class="btn" id="btn-fwd">W</button></div>
+      <div class="row">
+        <button type="button" class="btn" id="btn-left">A</button>
+        <button type="button" class="btn" id="btn-back">S</button>
+        <button type="button" class="btn" id="btn-right">D</button>
+      </div>
+    </div>
+
+    <div id="action-pad" class="controls">
+      <div class="row">
+        <button type="button" class="btn" id="btn-hit">MINE</button>
+        <button type="button" class="btn" id="btn-jump">JMP</button>
+        <button type="button" class="btn" id="btn-place">+BLK</button>
+      </div>
+      <div class="row">
+        <button type="button" class="btn" id="btn-rotate-screen">↔ ROTATE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRAFTING MODAL -->
+  <div id="craft-overlay">
+    <div id="craft-box">
+      <div id="craft-header">
+        <span>CRAFTING TABLE (ALL TOOLS + SPEARS + OBSIDIAN)</span>
+        <button type="button" class="mc-btn small-mc-btn" id="btn-close-craft" onclick="closeCraftModal()">X</button>
+      </div>
+      <div id="resource-counts">Wood: 0 | Cobble: 0 | Coal: 0 | Iron: 0 | Gold: 0 | Diamond: 0 | Obsidian: 0</div>
+      <div id="tier-tabs">
+        <button type="button" class="mc-btn tier-tab selected" data-tier="wood" onclick="selectCraftTier('wood')">Wood</button>
+        <button type="button" class="mc-btn tier-tab" data-tier="cobble" onclick="selectCraftTier('cobble')">Cobblestone</button>
+        <button type="button" class="mc-btn tier-tab" data-tier="iron" onclick="selectCraftTier('iron')">Iron</button>
+        <button type="button" class="mc-btn tier-tab" data-tier="gold" onclick="selectCraftTier('gold')">Gold</button>
+        <button type="button" class="mc-btn tier-tab" data-tier="diamond" onclick="selectCraftTier('diamond')">Diamond</button>
+        <button type="button" class="mc-btn tier-tab" data-tier="utility" onclick="selectCraftTier('utility')">🔥 Portal, Shears & Utility</button>
+      </div>
+      <div class="craft-grid" id="craft-grid"></div>
+    </div>
+  </div>
+
+  <input type="file" id="gallery-input" accept="image/*" onchange="handleGalleryFile(event)" />
+
+  <!-- OPTIONS MODAL -->
+  <div id="modal-overlay">
+    <div id="modal-box">
+      <div id="modal-title">OPTIONS</div>
+
+      <div class="opt-block">
+        <div class="opt-label">Sensitivity: <span id="sens-val">1.0</span></div>
+        <input type="range" id="sens-slider" min="0.3" max="2.5" step="0.1" value="1.0" oninput="updateSensitivity(this.value)" />
+      </div>
+
+      <div class="opt-block">
+        <div class="opt-label">Difficulty Mode</div>
+        <div class="diff-row-group">
+          <button type="button" class="mc-btn diff-btn opt-diff-peaceful" onclick="selectDifficulty('Peaceful')">Peaceful</button>
+          <button type="button" class="mc-btn diff-btn opt-diff-hard selected" onclick="selectDifficulty('Hard')">Hard</button>
+          <button type="button" class="mc-btn diff-btn opt-diff-hardcore" onclick="selectDifficulty('Hardcore')">Hardcore</button>
+        </div>
+      </div>
+
+      <button type="button" class="mc-btn" id="btn-close-modal" style="width:100%;" onclick="closeOptionsModal()">Back</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script>
+    let desiredOrientation = "landscape";
+
+    function updateRotateButtonLabel() {
+      const btn = document.getElementById("btn-rotate-screen");
+      if (!btn) return;
+      btn.textContent = desiredOrientation === "landscape" ? "↔ LANDSCAPE" : "↕ PORTRAIT";
+    }
+
+    function applyOrientationMode(mode) {
+      desiredOrientation = mode === "portrait" ? "portrait" : "landscape";
+      updateRotateButtonLabel();
+      try {
+        if (screen && screen.orientation && typeof screen.orientation.lock === "function") {
+          screen.orientation.lock(desiredOrientation).catch(() => {});
+        }
+      } catch (_) {}
+      try {
+        const lockFn = screen.lockOrientation || screen.mozLockOrientation || screen.msLockOrientation;
+        if (typeof lockFn === "function") {
+          lockFn.call(screen, desiredOrientation);
+        }
+      } catch (_) {}
+      setTimeout(resizeWorld, 180);
+    }
+
+    function toggleOrientationMode() {
+      const nextMode = desiredOrientation === "landscape" ? "portrait" : "landscape";
+      applyOrientationMode(nextMode);
+      showToast(nextMode === "landscape" ? "↔ گیم آڑی (Landscape) سیٹ کی گئی" : "↕ گیم سیدھی (Portrait) سیٹ کی گئی");
+    }
+
+    function lockLandscapeOrientation() {
+      applyOrientationMode(desiredOrientation);
+    }
+
+    window.addEventListener("load", () => {
+      updateRotateButtonLabel();
+      lockLandscapeOrientation();
+    });
+    document.addEventListener("pointerdown", () => {
+      lockLandscapeOrientation();
+    }, { passive: true });
+
+    function generateRedGMSkinDataUrl() {
+      const canvas = document.createElement("canvas");
+      canvas.width = 128;
+      canvas.height = 160;
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "#e51c23";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.strokeStyle = "#8e0000";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "900 44px Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("GM", canvas.width / 2, canvas.height * 0.58);
+
+      return canvas.toDataURL("image/png");
+    }
+
+    function createPixelTexture(drawFn, size = 16) {
+      const c = document.createElement("canvas");
+      c.width = size;
+      c.height = size;
+      const ctx = c.getContext("2d");
+      drawFn(ctx, size);
+      const tex = new THREE.CanvasTexture(c);
+      tex.magFilter = THREE.NearestFilter;
+      tex.minFilter = THREE.NearestFilter;
+      return tex;
+    }
+
+    function createMobFaceTexture(bgHex, eyeHex, pupilHex, snoutHex = null, style = "standard") {
+      return createPixelTexture((ctx, s) => {
+        ctx.fillStyle = bgHex;
+        ctx.fillRect(0, 0, s, s);
+
+        if (style === "creeper") {
+          ctx.fillStyle = "#1b5e20";
+          ctx.fillRect(2, 2, 3, 3);
+          ctx.fillRect(11, 2, 3, 3);
+          ctx.fillStyle = pupilHex;
+          ctx.fillRect(3, 4, 3, 3);
+          ctx.fillRect(10, 4, 3, 3);
+          ctx.fillRect(6, 7, 4, 3);
+          ctx.fillRect(4, 9, 3, 4);
+          ctx.fillRect(9, 9, 3, 4);
+          return;
+        }
+
+        if (style === "ghast") {
+          ctx.fillStyle = eyeHex;
+          ctx.fillRect(3, 5, 3, 3);
+          ctx.fillRect(10, 5, 3, 3);
+          ctx.fillStyle = pupilHex;
+          ctx.fillRect(4, 6, 1, 1);
+          ctx.fillRect(11, 6, 1, 1);
+          ctx.fillRect(6, 9, 4, 4);
+          ctx.fillRect(5, 10, 6, 2);
+          return;
+        }
+
+        if (style === "blaze") {
+          ctx.fillStyle = "#fff59d";
+          ctx.fillRect(2, 5, 4, 2);
+          ctx.fillRect(10, 5, 4, 2);
+          ctx.fillStyle = "#ff6f00";
+          ctx.fillRect(3, 5, 2, 2);
+          ctx.fillRect(11, 5, 2, 2);
+          ctx.fillRect(4, 10, 8, 2);
+          return;
+        }
+
+        ctx.fillStyle = eyeHex;
+        ctx.fillRect(3, 5, 3, 3);
+        ctx.fillRect(10, 5, 3, 3);
+        ctx.fillStyle = pupilHex;
+        ctx.fillRect(4, 6, 2, 2);
+        ctx.fillRect(10, 6, 2, 2);
+
+        if (snoutHex) {
+          ctx.fillStyle = snoutHex;
+          ctx.fillRect(5, 9, 6, 4);
+          ctx.fillStyle = "#3e2723";
+          ctx.fillRect(6, 10, 1, 2);
+          ctx.fillRect(9, 10, 1, 2);
+        } else if (style === "zombie") {
+          ctx.fillStyle = "#2e7d32";
+          ctx.fillRect(5, 11, 6, 2);
+        } else if (style === "skeleton") {
+          ctx.fillStyle = "#212121";
+          ctx.fillRect(4, 11, 8, 2);
+          ctx.fillStyle = "#bdbdbd";
+          ctx.fillRect(5, 11, 1, 2);
+          ctx.fillRect(8, 11, 1, 2);
+          ctx.fillRect(11, 11, 1, 2);
+        }
+      });
+    }
+
+    function createMobBodyTexture(baseHex, accentHex, pattern = "solid") {
+      return createPixelTexture((ctx, s) => {
+        ctx.fillStyle = baseHex;
+        ctx.fillRect(0, 0, s, s);
+        ctx.fillStyle = accentHex;
+
+        if (pattern === "cow") {
+          ctx.fillRect(2, 3, 4, 4);
+          ctx.fillRect(10, 7, 4, 5);
+          ctx.fillRect(5, 11, 3, 3);
+        } else if (pattern === "hoglin" || pattern === "piglin") {
+          ctx.fillRect(0, 4, s, 2);
+          ctx.fillRect(0, 10, s, 2);
+        } else if (pattern === "magma") {
+          ctx.fillStyle = "#ff3d00";
+          ctx.fillRect(0, 3, s, 2);
+          ctx.fillRect(0, 8, s, 2);
+          ctx.fillRect(0, 13, s, 2);
+        } else if (pattern === "creeper") {
+          ctx.fillRect(3, 2, 3, 4);
+          ctx.fillRect(9, 5, 4, 4);
+          ctx.fillRect(2, 10, 4, 3);
+          ctx.fillRect(10, 11, 3, 3);
+        } else if (pattern === "enderman") {
+          ctx.fillStyle = "#ab47bc";
+          ctx.fillRect(6, 4, 4, 1);
+          ctx.fillRect(7, 5, 2, 2);
+        }
+      });
+    }
+
+    const MOB_TEXTURES = {
+      cow: {
+        head: createMobFaceTexture("#5d4037", "#ffffff", "#111111", "#d7ccc8"),
+        body: createMobBodyTexture("#5d4037", "#ffffff", "cow")
+      },
+      pig: {
+        head: createMobFaceTexture("#f48fb1", "#ffffff", "#111111", "#f06292"),
+        body: createMobBodyTexture("#f48fb1", "#f06292", "solid")
+      },
+      sheep: {
+        head: createMobFaceTexture("#f5f5f5", "#ffffff", "#111111", "#e0b090"),
+        body: createMobBodyTexture("#ffffff", "#e0e0e0", "solid")
+      },
+      zombie: {
+        head: createMobFaceTexture("#4caf50", "#1b5e20", "#000000", null, "zombie"),
+        body: createMobBodyTexture("#0288d1", "#4caf50", "solid")
+      },
+      skeleton: {
+        head: createMobFaceTexture("#e0e0e0", "#212121", "#000000", null, "skeleton"),
+        body: createMobBodyTexture("#cfd8dc", "#90a4ae", "solid")
+      },
+      creeper: {
+        head: createMobFaceTexture("#43a047", "#1b5e20", "#000000", null, "creeper"),
+        body: createMobBodyTexture("#43a047", "#2e7d32", "creeper")
+      },
+      spider: {
+        head: createMobFaceTexture("#2c2c2c", "#d50000", "#ff1744"),
+        body: createMobBodyTexture("#37474f", "#212121", "solid")
+      },
+      enderman: {
+        head: createMobFaceTexture("#1a1026", "#e040fb", "#ea80fc"),
+        body: createMobBodyTexture("#140b1f", "#9c27b0", "enderman")
+      },
+      wolf: {
+        head: createMobFaceTexture("#eceff1", "#ffffff", "#263238", "#37474f"),
+        body: createMobBodyTexture("#cfd8dc", "#b0bec5", "solid")
+      },
+      iron_golem: {
+        head: createMobFaceTexture("#cfd8dc", "#455a64", "#d84315", "#90a4ae"),
+        body: createMobBodyTexture("#b0bec5", "#78909c", "solid")
+      },
+      piglin: {
+        head: createMobFaceTexture("#e59886", "#ffffff", "#2e7d32", "#f48fb1"),
+        body: createMobBodyTexture("#d88c7a", "#ffd54f", "piglin")
+      },
+      zombified_piglin: {
+        head: createMobFaceTexture("#81a884", "#ffffff", "#1b5e20", "#66bb6a"),
+        body: createMobBodyTexture("#689f74", "#4e342e", "piglin")
+      },
+      hoglin: {
+        head: createMobFaceTexture("#8d4034", "#ffffff", "#111111", "#a15043"),
+        body: createMobBodyTexture("#8d4034", "#5d4037", "hoglin")
+      },
+      magma_cube: {
+        head: createMobFaceTexture("#ff6f00", "#ffd54f", "#000000"),
+        body: createMobBodyTexture("#ff8f00", "#e65100", "magma")
+      },
+      blaze: {
+        head: createMobFaceTexture("#ffc107", "#fff59d", "#ff6f00", null, "blaze"),
+        body: createMobBodyTexture("#ffb300", "#ff6f00", "solid")
+      },
+      ghast: {
+        head: createMobFaceTexture("#fafafa", "#212121", "#000000", null, "ghast"),
+        body: createMobBodyTexture("#f5f5f5", "#e0e0e0", "solid")
+      },
+      strider: {
+        head: createMobFaceTexture("#c62828", "#ffffff", "#111111"),
+        body: createMobBodyTexture("#b71c1c", "#ff7043", "solid")
+      },
+      rival_player: {
+        head: createMobFaceTexture("#1565c0", "#ffffff", "#0d47a1"),
+        body: createMobBodyTexture("#1e88e5", "#ffd54f", "solid")
+      }
+    };
+
+    const grassTopTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#5fa832";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x++) {
+        for (let y = 0; y < s; y++) {
+          const h = ((x * 13 + y * 29) % 11);
+          if (h < 3) ctx.fillStyle = "#4d8e26";
+          else if (h < 6) ctx.fillStyle = "#72bf3f";
+          else continue;
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    });
+
+    const dirtTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#8c5832";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x++) {
+        for (let y = 0; y < s; y++) {
+          const h = ((x * 17 + y * 23) % 13);
+          if (h < 3) ctx.fillStyle = "#734625";
+          else if (h < 6) ctx.fillStyle = "#a3693e";
+          else continue;
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    });
+
+    const grassSideTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#8c5832";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x++) {
+        for (let y = 0; y < s; y++) {
+          const h = ((x * 19 + y * 31) % 13);
+          if (h < 3) {
+            ctx.fillStyle = "#734625";
+            ctx.fillRect(x, y, 1, 1);
+          } else if (h < 5) {
+            ctx.fillStyle = "#a3693e";
+            ctx.fillRect(x, y, 1, 1);
+          }
+        }
+      }
+      for (let x = 0; x < s; x++) {
+        const overhang = 3 + ((x * 7) % 3);
+        ctx.fillStyle = "#5fa832";
+        ctx.fillRect(x, 0, 1, overhang);
+        ctx.fillStyle = "#488522";
+        ctx.fillRect(x, overhang - 1, 1, 1);
+      }
+    });
+
+    const pathTopTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#c7a354";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x++) {
+        for (let y = 0; y < s; y++) {
+          const h = ((x * 11 + y * 23) % 9);
+          ctx.fillStyle = h < 3 ? "#a9873d" : (h < 6 ? "#d8b86a" : "#c7a354");
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    });
+
+    const farmlandTopTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#5d3a1a";
+      ctx.fillRect(0, 0, s, s);
+      for (let y = 2; y < s; y += 4) {
+        ctx.fillStyle = "#3e2510";
+        ctx.fillRect(0, y, s, 2);
+      }
+    });
+
+    const leavesTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#2f6e1e";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x++) {
+        for (let y = 0; y < s; y++) {
+          const h = ((x * 23 + y * 11) % 9);
+          if (h < 2) ctx.fillStyle = "#1e4d12";
+          else if (h < 4) ctx.fillStyle = "#3f8729";
+          else continue;
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    });
+
+    const sandTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#e6d293";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x++) {
+        for (let y = 0; y < s; y++) {
+          const h = ((x * 11 + y * 19) % 11);
+          if (h < 3) ctx.fillStyle = "#d4be7d";
+          else if (h < 6) ctx.fillStyle = "#f2e1ab";
+          else continue;
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    });
+
+    const snowTopTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#f4f9fc";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x++) {
+        for (let y = 0; y < s; y++) {
+          const h = ((x * 13 + y * 17) % 11);
+          if (h < 3) ctx.fillStyle = "#dcebf5";
+          else if (h < 5) ctx.fillStyle = "#ffffff";
+          else continue;
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    });
+
+    const snowSideTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#8c5832";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x++) {
+        const overhang = 4 + ((x * 5) % 3);
+        ctx.fillStyle = "#f4f9fc";
+        ctx.fillRect(x, 0, 1, overhang);
+        ctx.fillStyle = "#cfe3f0";
+        ctx.fillRect(x, overhang - 1, 1, 1);
+      }
+    });
+
+    const cactusTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#2e7d32";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x += 4) {
+        ctx.fillStyle = "#1b5e20";
+        ctx.fillRect(x, 0, 1, s);
+      }
+      for (let x = 2; x < s; x += 4) {
+        for (let y = 2; y < s; y += 4) {
+          ctx.fillStyle = "#a5d6a7";
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    });
+
+    function createOreTexture(baseHex, spotHex) {
+      return createPixelTexture((ctx, s) => {
+        ctx.fillStyle = baseHex;
+        ctx.fillRect(0, 0, s, s);
+        const spots = [[3,3],[4,3],[3,4],[10,5],[11,5],[10,6],[6,11],[7,11],[6,12],[12,12],[13,12]];
+        ctx.fillStyle = spotHex;
+        spots.forEach(([sx, sy]) => ctx.fillRect(sx, sy, 1, 1));
+      });
+    }
+
+    const coalTex = createOreTexture("#7f8c8d", "#212121");
+    const ironTex = createOreTexture("#7f8c8d", "#e0b090");
+    const goldTex = createOreTexture("#7f8c8d", "#ffd54f");
+    const diamondTex = createOreTexture("#7f8c8d", "#00e5ff");
+    const lapisTex = createOreTexture("#7f8c8d", "#1565c0");
+    const redstoneTex = createOreTexture("#7f8c8d", "#d50000");
+
+    const obsidianTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#160d24";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x++) {
+        for (let y = 0; y < s; y++) {
+          const h = ((x * 19 + y * 31) % 11);
+          if (h < 2) ctx.fillStyle = "#3b1e5e";
+          else if (h < 4) ctx.fillStyle = "#261240";
+          else if (h === 7) ctx.fillStyle = "#5e35b1";
+          else continue;
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    });
+
+    const portalTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#7b1fa2";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x++) {
+        for (let y = 0; y < s; y++) {
+          const h = ((x * 7 + y * 13) % 7);
+          ctx.fillStyle = h < 2 ? "#ce93d8" : (h < 5 ? "#9c27b0" : "#4a148c");
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    });
+
+    const netherrackTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#6e2121";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x++) {
+        for (let y = 0; y < s; y++) {
+          const h = ((x * 17 + y * 29) % 9);
+          ctx.fillStyle = h < 3 ? "#4d1414" : (h < 5 ? "#8c2d2d" : "#6e2121");
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    });
+
+    const glowstoneTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#f9a825";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x++) {
+        for (let y = 0; y < s; y++) {
+          const h = ((x * 13 + y * 19) % 7);
+          ctx.fillStyle = h < 2 ? "#fff59d" : (h < 4 ? "#8d6e63" : "#fbc02d");
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    });
+
+    const soulSandTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#4e3b31";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x++) {
+        for (let y = 0; y < s; y++) {
+          const h = ((x * 23 + y * 11) % 9);
+          ctx.fillStyle = h < 3 ? "#362720" : (h < 5 ? "#664e42" : "#4e3b31");
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    });
+
+    const netherQuartzTex = createOreTexture("#6e2121", "#f5f5f5");
+
+    const bedrockTex = createPixelTexture((ctx, s) => {
+      ctx.fillStyle = "#2b2b2b";
+      ctx.fillRect(0, 0, s, s);
+      for (let x = 0; x < s; x++) {
+        for (let y = 0; y < s; y++) {
+          const h = ((x * 29 + y * 13) % 7);
+          ctx.fillStyle = h < 2 ? "#111111" : (h < 4 ? "#424242" : "#222222");
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    });
+
+    const DEFAULT_GM_SKIN_URL = generateRedGMSkinDataUrl();
+    const STORAGE_KEY = "mc_custom_saved_worlds_v1";
+    const SERVER_STORAGE_KEY = "mc_custom_lan_servers_v1";
+
+    let currentSkinUrl = DEFAULT_GM_SKIN_URL;
+    let currentSkinName = "Red GM";
+    let selectedMode = "Survival";
+    let selectedDifficulty = "Hard";
+    let lookSensitivity = 1.0;
+    let activeCraftTier = "wood";
+    let cameraPersonMode = "1st";
+    let currentDimension = "overworld";
+    let portalCooldown = 0;
+
+    let savedWorlds = [];
+    let currentWorldId = null;
+    let currentWorldName = null;
+    let currentWorldSeed = 1337;
+
+    let activeServers = [];
+    let activeServerConfig = null;
+    let srvDraft = {
+      type: "Lifesteal",
+      timeMode: "cycle",
+      pvp: "on",
+      startHearts: 10
+    };
+
+    let stolenHearts = 0;
+    let playerHearts = 10;
+    let playerFood = 10;
+    let hungerMoveAccum = 0;
+    let starveTick = 0;
+
+    const netChannel = (typeof BroadcastChannel !== "undefined")
+      ? new BroadcastChannel("mc_same_net_servers_v1")
+      : null;
+
+    if (netChannel) {
+      netChannel.onmessage = (ev) => {
+        if (ev.data && ev.data.type === "servers_updated") {
+          loadServersFromStorage();
+          if (document.getElementById("server-screen").classList.contains("active")) {
+            renderServerList();
+          }
+        }
+      };
+    }
+
+    function loadServersFromStorage() {
+      try {
+        const raw = localStorage.getItem(SERVER_STORAGE_KEY);
+        activeServers = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(activeServers)) activeServers = [];
+      } catch (e) {
+        activeServers = [];
+      }
+    }
+
+    function persistServers() {
+      try {
+        localStorage.setItem(SERVER_STORAGE_KEY, JSON.stringify(activeServers));
+      } catch (e) {}
+      if (netChannel) {
+        try { netChannel.postMessage({ type: "servers_updated" }); } catch (_) {}
+      }
+    }
+
+    loadServersFromStorage();
+
+    function openServerBrowser() {
+      loadServersFromStorage();
+      renderServerList();
+      showScreen("server-screen");
+    }
+
+    function openServerCreator() {
+      showScreen("server-create-screen");
+    }
+
+    function setSrvOpt(key, val, btnEl) {
+      srvDraft[key] = val;
+      const parent = btnEl.parentElement;
+      if (parent) {
+        parent.querySelectorAll(".srv-opt-btn").forEach(b => b.classList.remove("selected"));
+      }
+      btnEl.classList.add("selected");
+    }
+
+    function deleteServerById(srvId) {
+      const srv = activeServers.find(s => s.id === srvId);
+      const label = srv ? srv.name : "یہ سرور";
+      if (!confirm(`کیا آپ "${label}" کو Delete کرنا چاہتے ہیں؟`)) return;
+
+      activeServers = activeServers.filter(s => s.id !== srvId);
+      persistServers();
+
+      if (activeServerConfig && activeServerConfig.id === srvId) {
+        activeServerConfig = null;
+        worldRunning = false;
+        resetMiningState();
+        showScreen("server-screen");
+      }
+
+      renderServerList();
+      showToast("🗑️ Server Deleted!");
+    }
+
+    function renderServerList() {
+      const box = document.getElementById("server-list-box");
+      box.innerHTML = "";
+      if (activeServers.length === 0) {
+        box.innerHTML = `<div id="play-center-info">کوئی سرور فعال نہیں ہے۔ اوپر <b>+ CREATE SERVER</b> دبا کر نیا سرور بنائیں یا کوڈ ڈالیں۔</div>`;
+        return;
+      }
+
+      activeServers.forEach((srv) => {
+        const card = document.createElement("div");
+        card.className = "server-card";
+        card.innerHTML = `
+          <div>
+            <div class="server-card-title">🌐 ${srv.name} <span style="font-size:11px;color:#81c784;">[${srv.lanCode}]</span></div>
+            <div class="server-card-sub">
+              Type: <b>${srv.type}</b> • Time: <b>${srv.timeMode.toUpperCase()}</b> • PVP: <b>${srv.pvp.toUpperCase()}</b> • Hearts: <b>${srv.startHearts}</b>
+            </div>
+          </div>
+          <div class="card-action-group">
+            <button type="button" class="mc-btn server-join-btn" onclick="joinServerById('${srv.id}')">Join</button>
+            <button type="button" class="delete-item-btn" onclick="deleteServerById('${srv.id}')">Delete</button>
+          </div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    function joinByCodeInput() {
+      const code = (document.getElementById("join-code-input").value || "").trim().toUpperCase();
+      if (!code) {
+        showToast("پہلے Server Code ڈالیں!");
+        return;
+      }
+      const found = activeServers.find(s => (s.lanCode || "").toUpperCase() === code);
+      if (found) {
+        joinServerById(found.id);
+        return;
+      }
+      let hashSeed = 0;
+      for (let i = 0; i < code.length; i++) hashSeed = (hashSeed * 31 + code.charCodeAt(i)) % 10000;
+      const guestSrv = {
+        id: "code_" + code,
+        name: `Room ${code}`,
+        lanCode: code,
+        seed: hashSeed || 2026,
+        type: "Lifesteal",
+        timeMode: "cycle",
+        pvp: "on",
+        startHearts: 10,
+        createdAt: Date.now()
+      };
+      activeServers.unshift(guestSrv);
+      persistServers();
+      joinServerById(guestSrv.id);
+    }
+
+    function createAndStartServer() {
+      const nameVal = (document.getElementById("srv-name-input").value || "").trim() || `Server #${activeServers.length + 1}`;
+      const lanCode = "LAN-" + Math.floor(1000 + Math.random() * 9000);
+      const srv = {
+        id: "srv_" + Date.now(),
+        name: nameVal,
+        lanCode,
+        seed: Math.floor(Math.random() * 10000),
+        type: srvDraft.type,
+        timeMode: srvDraft.timeMode,
+        pvp: srvDraft.pvp,
+        startHearts: srvDraft.startHearts,
+        createdAt: Date.now()
+      };
+      activeServers.unshift(srv);
+      persistServers();
+      joinServerById(srv.id);
+    }
+
+    function spawnRivalPlayer(x, y, z) {
+      const group = new THREE.Group();
+      const texPack = MOB_TEXTURES.rival_player;
+      const bodyMat = new THREE.MeshLambertMaterial({ map: texPack.body });
+      const headMat = new THREE.MeshLambertMaterial({ map: texPack.head });
+      const attachRef = (o) => { o.userData.mobRoot = group; return o; };
+
+      const torso = attachRef(new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.72, 0.32), bodyMat));
+      torso.position.set(0, 0.9, 0);
+      const headMats = [bodyMat, bodyMat, bodyMat, bodyMat, headMat, bodyMat];
+      const head = attachRef(new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.48, 0.48), headMats));
+      head.position.set(0, 1.52, 0);
+
+      const legGeo = new THREE.BoxGeometry(0.22, 0.52, 0.24);
+      const legL = attachRef(new THREE.Mesh(legGeo, bodyMat));
+      legL.position.set(-0.14, 0.26, 0);
+      const legR = attachRef(new THREE.Mesh(legGeo, bodyMat));
+      legR.position.set(0.14, 0.26, 0);
+
+      group.add(torso, head, legL, legR);
+      group.position.set(x, y, z);
+      group.userData = {
+        kind: "player",
+        label: "Player_2",
+        isPlayerEntity: true,
+        hp: 20,
+        maxHp: 20,
+        stolenFromMe: 0,
+        speed: 0.032,
+        hostile: true,
+        aggro: true,
+        yOffset: 0,
+        dir: Math.random() * Math.PI * 2,
+        timer: 80,
+        attackCd: 0
+      };
+      scene.add(group);
+      mobs.push(group);
+    }
+
+    function joinServerById(srvId) {
+      const srv = activeServers.find(s => s.id === srvId);
+      if (!srv) return;
+      activeServerConfig = srv;
+      currentWorldId = srv.id;
+      currentWorldName = srv.name;
+      currentWorldSeed = srv.seed;
+      currentDimension = "overworld";
+      stolenHearts = 0;
+
+      initThreeWorld();
+      clearSceneObjectsOnly();
+
+      resources = { wood: 0, cobble: 0, coal: 0, iron: 0, gold: 0, diamond: 0, lapis: 0, redstone: 0, obsidian: 0, netherrack: 0 };
+      hotbarItems = [];
+      selectedSlotIndex = 0;
+
+      if (srv.timeMode === "day") dayTime = 0.25;
+      else if (srv.timeMode === "night") dayTime = 0.75;
+      else dayTime = 0.25;
+
+      if (playerRoot) {
+        const startY = Math.max(getTerrainHeight(0, 4), WATER_LEVEL) + 0.6;
+        playerRoot.position.set(0, startY, 4);
+        yaw = 0; pitch = 0;
+        targetYaw = 0; targetPitch = 0;
+        fallStartY = startY;
+        isFalling = false;
+        velY = 0;
+      }
+
+      const srvHud = document.getElementById("hud-server");
+      srvHud.style.display = "block";
+      srvHud.textContent = `Server: ${srv.name} (${srv.type} | ${srv.lanCode})`;
+
+      document.getElementById("hud-mode").textContent = `Mode: ${srv.type} (${selectedDifficulty})`;
+      const bars = document.getElementById("survival-bars");
+      if (srv.type === "Creative") {
+        bars.style.display = "none";
+        giveCreativeKit();
+        selectedSlotIndex = 0;
+      } else {
+        bars.style.display = "flex";
+        renderSurvivalBars(srv.startHearts || 10, 10);
+      }
+
+      renderHotbar();
+      updateInfiniteChunks();
+
+      if (srv.pvp === "on") {
+        const rx = 5;
+        const rz = 0;
+        spawnRivalPlayer(rx, getGroundY(rx, rz), rz);
+      }
+
+      worldRunning = true;
+      showScreen("world-screen");
+      showToast(`🌐 Joined ${srv.name} (${srv.lanCode})!`);
+    }
+
+    function giveCreativeKit() {
+      [
+        "cooked_meat", "obsidian", "flint_and_steel", "netherrack", "glowstone", "soul_sand", "nether_quartz",
+        "grass", "dirt", "path", "farmland", "sand", "snow", "cactus", "leaves", "cobble", "coal", "iron", "gold", "diamond", "lapis", "redstone", "bedrock", "wood",
+        "shears", "bucket", "water_bucket", "brush", "fishing_rod",
+        "wood_spear", "cobble_spear", "iron_spear", "gold_spear", "diamond_spear",
+        "wood_pickaxe", "cobble_pickaxe", "iron_pickaxe", "gold_pickaxe", "diamond_pickaxe",
+        "wood_axe", "cobble_axe", "iron_axe", "gold_axe", "diamond_axe",
+        "wood_shovel", "cobble_shovel", "iron_shovel", "gold_shovel", "diamond_shovel",
+        "wood_hoe", "cobble_hoe", "iron_hoe", "gold_hoe", "diamond_hoe",
+        "wood_sword", "cobble_sword", "iron_sword", "gold_sword", "diamond_sword"
+      ].forEach(addItemToHotbar);
+    }
+
+    const skinPreview = document.getElementById("skin-preview");
+    const skinLabel = document.getElementById("skin-label");
+
+    function applyDefaultGMSkin() {
+      currentSkinUrl = DEFAULT_GM_SKIN_URL;
+      currentSkinName = "Red GM";
+      skinPreview.src = currentSkinUrl;
+      skinLabel.textContent = "Skin: " + currentSkinName;
+    }
+
+    applyDefaultGMSkin();
+
+    function loadSavedWorldsFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        savedWorlds = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(savedWorlds)) savedWorlds = [];
+      } catch (e) {
+        savedWorlds = [];
+      }
+    }
+
+    function persistSavedWorlds() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedWorlds));
+      } catch (e) {}
+    }
+
+    loadSavedWorldsFromStorage();
+
+    function showToast(text) {
+      const el = document.getElementById("msg-toast");
+      el.textContent = text;
+      el.style.display = "block";
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => { el.style.display = "none"; }, 2200);
+    }
+
+    function deleteWorldById(worldId) {
+      const w = savedWorlds.find(item => item.id === worldId);
+      const label = w ? w.name : "یہ ورلڈ";
+      if (!confirm(`کیا آپ "${label}" کو Delete کرنا چاہتے ہیں؟`)) return;
+
+      savedWorlds = savedWorlds.filter(item => item.id !== worldId);
+      persistSavedWorlds();
+
+      if (currentWorldId === worldId) {
+        currentWorldId = null;
+        currentWorldName = null;
+      }
+
+      renderSavedWorldsList();
+      showToast("🗑️ World Deleted!");
+    }
+
+    function renderSavedWorldsList() {
+      const listEl = document.getElementById("saved-worlds-list");
+      const infoEl = document.getElementById("play-center-info");
+      listEl.innerHTML = "";
+
+      if (savedWorlds.length === 0) {
+        infoEl.style.display = "block";
+        return;
+      }
+
+      infoEl.style.display = "none";
+      savedWorlds.forEach((w) => {
+        const card = document.createElement("div");
+        card.className = "world-card";
+        const px = Math.round(w.pos ? w.pos.x : 0);
+        const pz = Math.round(w.pos ? w.pos.z : 0);
+        const dimLabel = w.dimension === "nether" ? "Nether 🔥" : "Overworld 🌍";
+        card.innerHTML = `
+          <div class="world-card-info" onclick="resumeSavedWorld('${w.id}')">
+            <div class="world-card-name">🌍 ${w.name}</div>
+            <div class="world-card-meta">${w.mode} (${w.difficulty}) • ${dimLabel} • X ${px}, Z ${pz}</div>
+          </div>
+          <div class="card-action-group">
+            <button type="button" class="world-play-badge" onclick="resumeSavedWorld('${w.id}')">Play</button>
+            <button type="button" class="delete-item-btn" onclick="deleteWorldById('${w.id}')">Delete</button>
+          </div>
+        `;
+        listEl.appendChild(card);
+      });
+    }
+
+    function showScreen(id) {
+      lockLandscapeOrientation();
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      const target = document.getElementById(id);
+      if (target) target.classList.add("active");
+      if (id === "play-screen") {
+        renderSavedWorldsList();
+      } else if (id === "world-screen") {
+        resizeWorld();
+      }
+    }
+
+    function handlePlayClick() {
+      lockLandscapeOrientation();
+      if (!skinPreview.src || skinPreview.src === window.location.href) {
+        applyDefaultGMSkin();
+      }
+      showScreen("play-screen");
+    }
+
+    function handleSkinClick() {
+      const input = document.getElementById("gallery-input");
+      if (input) input.click();
+    }
+
+    function handleGalleryFile(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      currentSkinUrl = URL.createObjectURL(file);
+      currentSkinName = file.name;
+      skinPreview.src = currentSkinUrl;
+      skinLabel.textContent = "Custom Skin: " + currentSkinName;
+      showToast("Custom Skin Applied!");
+    }
+
+    function handleOptionsClick() {
+      document.getElementById("sens-slider").value = lookSensitivity;
+      document.getElementById("sens-val").textContent = lookSensitivity.toFixed(1);
+      syncDifficultyButtons();
+      document.getElementById("modal-overlay").style.display = "flex";
+    }
+
+    function closeOptionsModal() {
+      document.getElementById("modal-overlay").style.display = "none";
+    }
+
+    function updateSensitivity(val) {
+      lookSensitivity = parseFloat(val) || 1.0;
+      document.getElementById("sens-val").textContent = lookSensitivity.toFixed(1);
+    }
+
+    function syncDifficultyButtons() {
+      ["Peaceful", "Hard", "Hardcore"].forEach(m => {
+        const lower = m.toLowerCase();
+        const b1 = document.getElementById("btn-diff-" + lower);
+        const b2 = document.querySelector(".opt-diff-" + lower);
+        if (b1) b1.classList.toggle("selected", selectedDifficulty === m);
+        if (b2) b2.classList.toggle("selected", selectedDifficulty === m);
+      });
+    }
+
+    function selectDifficulty(diff) {
+      selectedDifficulty = diff;
+      syncDifficultyButtons();
+      applyDifficultyRules();
+      showToast("Difficulty: " + diff);
+    }
+
+    function selectMode(mode) {
+      selectedMode = mode;
+      document.getElementById("btn-mode-survival").classList.toggle("selected", mode === "Survival");
+      document.getElementById("btn-mode-creative").classList.toggle("selected", mode === "Creative");
+    }
+
+    function getBaseMaxHearts() {
+      if (selectedDifficulty === "Hardcore") return 1;
+      if (activeServerConfig && activeServerConfig.startHearts) return activeServerConfig.startHearts;
+      return 10;
+    }
+
+    function getCurrentMaxHearts() {
+      return Math.max(1, getBaseMaxHearts() + stolenHearts);
+    }
+
+    function renderSurvivalBars(hearts = playerHearts, food = playerFood) {
+      const maxH = getCurrentMaxHearts();
+      playerHearts = Math.max(0, Math.min(maxH, hearts));
+      playerFood = Math.max(0, Math.min(10, food));
+
+      const hRow = document.getElementById("hearts-row");
+      const fRow = document.getElementById("food-row");
+      hRow.innerHTML = "";
+      fRow.innerHTML = "";
+
+      const fullHearts = Math.floor(playerHearts);
+      const hasHalf = (playerHearts - fullHearts) >= 0.45;
+
+      for (let i = 0; i < maxH; i++) {
+        const h = document.createElement("span");
+        if (i < fullHearts) h.textContent = "❤️";
+        else if (i === fullHearts && hasHalf) h.textContent = "💔";
+        else h.textContent = "🖤";
+        hRow.appendChild(h);
+      }
+
+      for (let i = 0; i < 10; i++) {
+        const f = document.createElement("span");
+        f.textContent = i < playerFood ? "🍖" : "🦴";
+        fRow.appendChild(f);
+      }
+    }
+
+    function applyDifficultyRules() {
+      document.getElementById("hud-mode").textContent = `Mode: ${selectedMode} (${selectedDifficulty})`;
+      if (selectedDifficulty === "Peaceful") {
+        mobs.forEach(m => scene && scene.remove(m));
+        mobs = [];
+        if (selectedMode === "Survival") renderSurvivalBars(getCurrentMaxHearts(), 10);
+      } else if (selectedDifficulty === "Hardcore") {
+        if (selectedMode === "Survival") renderSurvivalBars(Math.min(1, getCurrentMaxHearts()), playerFood);
+      } else {
+        if (selectedMode === "Survival" && playerHearts <= 1) renderSurvivalBars(getCurrentMaxHearts(), playerFood);
+      }
+    }
+
+    function updateViewButtonLabel() {
+      const btn = document.getElementById("btn-view-mode");
+      if (!btn) return;
+      if (cameraPersonMode === "1st") btn.textContent = "1ST PERSON";
+      else if (cameraPersonMode === "2nd") btn.textContent = "2ND PERSON";
+      else btn.textContent = "3RD PERSON";
+    }
+
+    function cycleCameraPersonView() {
+      if (cameraPersonMode === "1st") {
+        cameraPersonMode = "2nd";
+        if (playerModelGroup) playerModelGroup.visible = true;
+        if (heldWeaponMesh) heldWeaponMesh.visible = false;
+        showToast("👤 2nd Person View (Front/Side)");
+      } else if (cameraPersonMode === "2nd") {
+        cameraPersonMode = "3rd";
+        if (playerModelGroup) playerModelGroup.visible = true;
+        if (heldWeaponMesh) heldWeaponMesh.visible = false;
+        showToast("🧍 3rd Person View (Back)");
+      } else {
+        cameraPersonMode = "1st";
+        if (playerModelGroup) playerModelGroup.visible = false;
+        if (heldWeaponMesh) heldWeaponMesh.visible = true;
+        showToast("👁️ 1st Person View");
+      }
+      updateViewButtonLabel();
+    }
+
+    let scene, camera, renderer, ambientLight, sunLight, heldWeaponMesh, crackOverlayMesh, sunMesh;
+    let playerRoot, playerModelGroup;
+    let cloudMeshes = [];
+    let blocks = [];
+    let blockMap = new Map();
+    let generatedChunks = new Set();
+    let mobs = [];
+    let hotbarItems = [];
+    let resources = { wood: 0, cobble: 0, coal: 0, iron: 0, gold: 0, diamond: 0, lapis: 0, redstone: 0, obsidian: 0, netherrack: 0 };
+    let selectedSlotIndex = 0;
+    let worldRunning = false;
+    let dayTime = 0.25;
+    const WATER_LEVEL = -1;
+    const BEDROCK_Y = -120;
+
+    const TIER_INFO = {
+      wood:    { name: "Wood",    hex: "#a0522d", num: 0xa0522d, speed: 1.5, dmg: 3 },
+      cobble:  { name: "Cobble",  hex: "#7f8c8d", num: 0x7f8c8d, speed: 2.5, dmg: 4 },
+      iron:    { name: "Iron",    hex: "#d5dbdb", num: 0xd5dbdb, speed: 4.0, dmg: 6 },
+      gold:    { name: "Gold",    hex: "#f1c40f", num: 0xf1c40f, speed: 5.5, dmg: 5 },
+      diamond: { name: "Diamond", hex: "#00e5ff", num: 0x00e5ff, speed: 7.0, dmg: 8 }
+    };
+
+    const ITEM_META = {
+      cooked_meat:     { label: "🍖 Cooked Meat",  color: "#d84315", kind: "food", restoreFood: 4, restoreHearts: 3 },
+      obsidian:        { label: "🟪 Obsidian",       color: "#311b92", kind: "block" },
+      portal:          { label: "🌀 Nether Portal",  color: "#8e24aa", kind: "portal" },
+      netherrack:      { label: "🔥 Netherrack",     color: "#7f1d1d", kind: "block" },
+      glowstone:       { label: "💡 Glowstone",      color: "#f9a825", kind: "block" },
+      soul_sand:       { label: "🟫 Soul Sand",      color: "#4e342e", kind: "block" },
+      nether_quartz:   { label: "⬜ Nether Quartz",  color: "#b0bec5", kind: "block" },
+      grass:           { label: "Grass",            color: "#5fa832", kind: "block" },
+      dirt:            { label: "Dirt",             color: "#8c5832", kind: "block" },
+      path:            { label: "Dirt Path",        color: "#c7a354", kind: "block" },
+      farmland:        { label: "Farmland",         color: "#5d3a1a", kind: "block" },
+      sand:            { label: "Sand",             color: "#d4be7d", kind: "block" },
+      snow:            { label: "Snow",             color: "#90caf9", kind: "block" },
+      cactus:          { label: "Cactus",           color: "#2e7d32", kind: "block" },
+      cobble:          { label: "Cobblestone",      color: "#7f8c8d", kind: "block" },
+      coal:            { label: "⚫ Coal",          color: "#37474f", kind: "block" },
+      iron:            { label: "Iron",             color: "#bdc3c7", kind: "block" },
+      gold:            { label: "Gold",             color: "#f1c40f", kind: "block" },
+      diamond:         { label: "💎 Diamond",       color: "#00bcd4", kind: "block" },
+      lapis:           { label: "🔵 Lapis",         color: "#1976d2", kind: "block" },
+      redstone:        { label: "🔴 Redstone",      color: "#d32f2f", kind: "block" },
+      bedrock:         { label: "🪨 Bedrock",       color: "#212121", kind: "block" },
+      wood:            { label: "Wood",             color: "#a0522d", kind: "block" },
+      leaves:          { label: "Leaves",           color: "#2f6e1e", kind: "block" },
+      shears:          { label: "✂️ Shears",        color: "#b0bec5", kind: "shears" },
+      flint_and_steel: { label: "🔥 Flint & Steel", color: "#e65100", kind: "flint_steel" },
+      bucket:          { label: "🪣 Bucket",        color: "#90a4ae", kind: "bucket_empty" },
+      water_bucket:    { label: "🪣💧 Water Bucket", color: "#1e88e5", kind: "bucket_water" },
+      brush:           { label: "🖌️ Brush",         color: "#a1887f", kind: "brush" },
+      fishing_rod:     { label: "🎣 Fishing Rod",   color: "#8d6e63", kind: "fishing_rod" }
+    };
+
+    const RECIPES = {
+      obsidian:        { label: "🟪 Obsidian (x4)",   desc: "Needs: 3 Cobble + 1 Iron (Nether Portal)", cost: { cobble: 3, iron: 1 }, amount: 4 },
+      flint_and_steel: { label: "🔥 Flint & Steel",   desc: "Needs: 1 Iron + 1 Cobble (Portal Light)", cost: { iron: 1, cobble: 1 } },
+      shears:          { label: "✂️ Shears",          desc: "Needs: 2 Iron (Leaves/Cactus)", cost: { iron: 2 } },
+      bucket:          { label: "🪣 Bucket",          desc: "Needs: 3 Iron (Water Bucket)", cost: { iron: 3 } },
+      brush:           { label: "🖌️ Brush",           desc: "Needs: 1 Iron + 1 Wood", cost: { iron: 1, wood: 1 } },
+      fishing_rod:     { label: "🎣 Fishing Rod",     desc: "Needs: 3 Wood", cost: { wood: 3 } }
+    };
+
+    Object.keys(TIER_INFO).forEach(tier => {
+      const t = TIER_INFO[tier];
+      ITEM_META[`${tier}_spear`]   = { label: `🔱 ${t.name} Spear`,   color: t.hex, kind: "spear",   tier };
+      ITEM_META[`${tier}_pickaxe`] = { label: `⛏️ ${t.name} Pickaxe`, color: t.hex, kind: "pickaxe", tier };
+      ITEM_META[`${tier}_axe`]     = { label: `🪓 ${t.name} Axe`,     color: t.hex, kind: "axe",     tier };
+      ITEM_META[`${tier}_shovel`]  = { label: `🥄 ${t.name} Shovel`,  color: t.hex, kind: "shovel",  tier };
+      ITEM_META[`${tier}_hoe`]     = { label: `🌾 ${t.name} Hoe`,     color: t.hex, kind: "hoe",     tier };
+      ITEM_META[`${tier}_sword`]   = { label: `⚔️ ${t.name} Sword`,   color: t.hex, kind: "sword",   tier };
+
+      if (tier === "wood") {
+        RECIPES[`${tier}_spear`]   = { label: `🔱 ${t.name} Spear`,   desc: "Needs: 3 Wood (3 HP, -1 Hunger)", cost: { wood: 3 } };
+        RECIPES[`${tier}_pickaxe`] = { label: `⛏️ ${t.name} Pickaxe`, desc: "Needs: 3 Wood", cost: { wood: 3 } };
+        RECIPES[`${tier}_axe`]     = { label: `🪓 ${t.name} Axe`,     desc: "Needs: 3 Wood (Logs & Combat)", cost: { wood: 3 } };
+        RECIPES[`${tier}_shovel`]  = { label: `🥄 ${t.name} Shovel`,  desc: "Needs: 1 Wood (Dirt/Sand/Path)", cost: { wood: 1 } };
+        RECIPES[`${tier}_hoe`]     = { label: `🌾 ${t.name} Hoe`,     desc: "Needs: 2 Wood (Farmland/Leaves)", cost: { wood: 2 } };
+        RECIPES[`${tier}_sword`]   = { label: `⚔️ ${t.name} Sword`,   desc: "Needs: 2 Wood (Combat)", cost: { wood: 2 } };
+      } else {
+        const extra = tier === "diamond" ? " (1-Hit + Pass Through!)" : "";
+        RECIPES[`${tier}_spear`]   = { label: `🔱 ${t.name} Spear`,   desc: `Needs: 2 ${t.name} + 2 Wood${extra}`, cost: { wood: 2, [tier]: 2 } };
+        RECIPES[`${tier}_pickaxe`] = { label: `⛏️ ${t.name} Pickaxe`, desc: `Needs: 3 ${t.name} + 1 Wood`, cost: { wood: 1, [tier]: 3 } };
+        RECIPES[`${tier}_axe`]     = { label: `🪓 ${t.name} Axe`,     desc: `Needs: 3 ${t.name} + 1 Wood`, cost: { wood: 1, [tier]: 3 } };
+        RECIPES[`${tier}_shovel`]  = { label: `🥄 ${t.name} Shovel`,  desc: `Needs: 1 ${t.name} + 1 Wood`, cost: { wood: 1, [tier]: 1 } };
+        RECIPES[`${tier}_hoe`]     = { label: `🌾 ${t.name} Hoe`,     desc: `Needs: 2 ${t.name} + 1 Wood`, cost: { wood: 1, [tier]: 2 } };
+        RECIPES[`${tier}_sword`]   = { label: `⚔️ ${t.name} Sword`,   desc: `Needs: 2 ${t.name} + 1 Wood`, cost: { wood: 1, [tier]: 2 } };
+      }
+    });
+
+    const grassMat = [
+      new THREE.MeshLambertMaterial({ map: grassSideTex }),
+      new THREE.MeshLambertMaterial({ map: grassSideTex }),
+      new THREE.MeshLambertMaterial({ map: grassTopTex }),
+      new THREE.MeshLambertMaterial({ map: dirtTex }),
+      new THREE.MeshLambertMaterial({ map: grassSideTex }),
+      new THREE.MeshLambertMaterial({ map: grassSideTex })
+    ];
+
+    const pathMat = [
+      new THREE.MeshLambertMaterial({ map: dirtTex }),
+      new THREE.MeshLambertMaterial({ map: dirtTex }),
+      new THREE.MeshLambertMaterial({ map: pathTopTex }),
+      new THREE.MeshLambertMaterial({ map: dirtTex }),
+      new THREE.MeshLambertMaterial({ map: dirtTex }),
+      new THREE.MeshLambertMaterial({ map: dirtTex })
+    ];
+
+    const farmlandMat = [
+      new THREE.MeshLambertMaterial({ map: dirtTex }),
+      new THREE.MeshLambertMaterial({ map: dirtTex }),
+      new THREE.MeshLambertMaterial({ map: farmlandTopTex }),
+      new THREE.MeshLambertMaterial({ map: dirtTex }),
+      new THREE.MeshLambertMaterial({ map: dirtTex }),
+      new THREE.MeshLambertMaterial({ map: dirtTex })
+    ];
+
+    const snowMat = [
+      new THREE.MeshLambertMaterial({ map: snowSideTex }),
+      new THREE.MeshLambertMaterial({ map: snowSideTex }),
+      new THREE.MeshLambertMaterial({ map: snowTopTex }),
+      new THREE.MeshLambertMaterial({ map: dirtTex }),
+      new THREE.MeshLambertMaterial({ map: snowSideTex }),
+      new THREE.MeshLambertMaterial({ map: snowSideTex })
+    ];
+
+    const materials = {
+      obsidian:      new THREE.MeshLambertMaterial({ map: obsidianTex }),
+      portal:        new THREE.MeshBasicMaterial({ map: portalTex, transparent: true, opacity: 0.78 }),
+      netherrack:    new THREE.MeshLambertMaterial({ map: netherrackTex }),
+      glowstone:     new THREE.MeshBasicMaterial({ map: glowstoneTex }),
+      soul_sand:     new THREE.MeshLambertMaterial({ map: soulSandTex }),
+      nether_quartz: new THREE.MeshLambertMaterial({ map: netherQuartzTex }),
+      lava:          new THREE.MeshBasicMaterial({ color: 0xff5722 }),
+      grass:         grassMat,
+      path:          pathMat,
+      farmland:      farmlandMat,
+      snow:          snowMat,
+      sand:          new THREE.MeshLambertMaterial({ map: sandTex }),
+      cactus:        new THREE.MeshLambertMaterial({ map: cactusTex }),
+      dirt:          new THREE.MeshLambertMaterial({ map: dirtTex }),
+      leaves:        new THREE.MeshLambertMaterial({ map: leavesTex }),
+      water:         new THREE.MeshLambertMaterial({ color: 0x2b87d1, transparent: true, opacity: 0.72 }),
+      cobble:        new THREE.MeshLambertMaterial({ color: 0x7f8c8d }),
+      coal:          new THREE.MeshLambertMaterial({ map: coalTex }),
+      iron:          new THREE.MeshLambertMaterial({ map: ironTex }),
+      gold:          new THREE.MeshLambertMaterial({ map: goldTex }),
+      diamond:       new THREE.MeshLambertMaterial({ map: diamondTex }),
+      lapis:         new THREE.MeshLambertMaterial({ map: lapisTex }),
+      redstone:      new THREE.MeshLambertMaterial({ map: redstoneTex }),
+      bedrock:       new THREE.MeshLambertMaterial({ map: bedrockTex }),
+      wood:          new THREE.MeshLambertMaterial({ color: 0x7a4b2a })
+    };
+    const blockGeo = new THREE.BoxGeometry(1, 1, 1);
+
+    function bKey(x, y, z) {
+      return `${Math.round(x)},${Math.round(y)},${Math.round(z)}`;
+    }
+
+    function fbm2D(x, z, seedOffset = 0) {
+      const sx = x + seedOffset * 17.3;
+      const sz = z - seedOffset * 29.1;
+      const o1 = Math.sin(sx * 0.045) * Math.cos(sz * 0.045);
+      const o2 = Math.sin((sx + sz) * 0.09) * 0.5;
+      const o3 = Math.cos(sx * 0.19 - sz * 0.16) * 0.25;
+      return (o1 + o2 + o3) / 1.75;
+    }
+
+    function getBiomeAt(x, z) {
+      if (currentDimension === "nether") {
+        const n = fbm2D(x * 0.4, z * 0.4, currentWorldSeed + 999);
+        if (n > 0.25) return { id: "soul_valley", label: "Soul Sand Valley 💀", surface: "soul_sand", sub: "netherrack", scale: 2.5, base: 1 };
+        return { id: "nether_wastes", label: "Nether Wastes 🔥", surface: "netherrack", sub: "netherrack", scale: 3.1, base: 1 };
+      }
+
+      const temp = fbm2D(x * 0.45, z * 0.45, currentWorldSeed);
+      const humidity = fbm2D(x * 0.45, z * 0.45, currentWorldSeed + 500);
+
+      if (temp > 0.28 && humidity < 0.05) {
+        return { id: "desert", label: "Desert 🏜️", surface: "sand", sub: "sand", scale: 2.2, base: 1 };
+      }
+      if (temp < -0.28) {
+        return { id: "snow", label: "Snow Tundra ❄️", surface: "snow", sub: "dirt", scale: 3.4, base: 1 };
+      }
+      if (humidity > 0.22) {
+        return { id: "forest", label: "Forest 🌲", surface: "grass", sub: "dirt", scale: 2.8, base: 1 };
+      }
+      return { id: "plains", label: "Plains 🌿", surface: "grass", sub: "dirt", scale: 2.3, base: 0 };
+    }
+
+    function getTerrainHeight(x, z) {
+      const biome = getBiomeAt(x, z);
+      const n1 = Math.sin((x + currentWorldSeed) * 0.14) * Math.cos((z - currentWorldSeed) * 0.14) * biome.scale;
+      const n2 = Math.sin((x + z) * 0.07) * 1.8;
+      return Math.floor(n1 + n2 + biome.base);
+    }
+
+    function isSelectiveCavePocket(wx, wy, wz, topY) {
+      if (wy >= topY - 2 || wy <= BEDROCK_Y + 2) return false;
+      const c1 = Math.sin((wx + currentWorldSeed) * 0.11) * Math.cos((wz - currentWorldSeed) * 0.11) * Math.sin(wy * 0.16);
+      const c2 = Math.cos((wx - wz) * 0.06 + wy * 0.12);
+      return (c1 > 0.56 && c2 > 0.35);
+    }
+
+    function getBlockTypeAtLayer(wx, wy, wz, topY, biome) {
+      if (wy <= BEDROCK_Y + 1) return "bedrock";
+      if (wy > topY) return null;
+
+      if (currentDimension === "nether") {
+        if (wy === topY) return topY <= WATER_LEVEL ? "netherrack" : biome.surface;
+        if (isSelectiveCavePocket(wx, wy, wz, topY)) return null;
+        const nh = Math.abs((wx * 73856093) ^ (wy * 19349663) ^ (wz * 83492791) ^ (currentWorldSeed * 97));
+        if (nh % 16 === 0) return "nether_quartz";
+        if (nh % 27 === 1) return "glowstone";
+        if (nh % 31 === 2) return "gold";
+        return "netherrack";
+      }
+
+      if (wy === topY) return topY <= WATER_LEVEL ? (biome.id === "desert" ? "sand" : "dirt") : biome.surface;
+      if (wy >= topY - 4) return biome.sub;
+
+      if (isSelectiveCavePocket(wx, wy, wz, topY)) return null;
+
+      const h = Math.abs((wx * 73856093) ^ (wy * 19349663) ^ (wz * 83492791) ^ (currentWorldSeed * 97));
+
+      if (wy >= -18) return "cobble";
+      if (wy >= -45) {
+        if (h % 14 === 0) return "coal";
+        if (h % 19 === 1) return "iron";
+        return "cobble";
+      }
+      if (wy >= -75) {
+        if (h % 13 === 0) return "coal";
+        if (h % 21 === 2) return "gold";
+        if (h % 33 === 4) return "obsidian";
+        return "cobble";
+      }
+      if (h % 13 === 0) return "coal";
+      if (h % 25 === 3) return "diamond";
+      if (h % 22 === 4) return "obsidian";
+      if (h % 25 === 5) return "lapis";
+      if (h % 23 === 7) return "redstone";
+      return "cobble";
+    }
+
+    function ensureColumnSolidDownTo(wx, wz, targetMinY) {
+      const topY = getTerrainHeight(wx, wz);
+      const biome = getBiomeAt(wx, wz);
+      const minY = Math.max(BEDROCK_Y, Math.min(topY, Math.floor(targetMinY)));
+
+      for (let wy = topY; wy >= minY; wy--) {
+        const key = bKey(wx, wy, wz);
+        if (blockMap.has(key)) continue;
+        const bType = getBlockTypeAtLayer(wx, wy, wz, topY, biome);
+        if (bType) addBlock(wx, wy, wz, bType);
+      }
+    }
+
+    function createPlayerBodyMesh() {
+      const group = new THREE.Group();
+      const redMat = new THREE.MeshLambertMaterial({ color: 0xe51c23 });
+      const darkMat = new THREE.MeshLambertMaterial({ color: 0x222222 });
+
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.45), redMat);
+      head.position.set(0, 1.38, 0);
+
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.65, 0.28), redMat);
+      torso.position.set(0, 0.82, 0);
+
+      const armGeo = new THREE.BoxGeometry(0.2, 0.62, 0.22);
+      const armL = new THREE.Mesh(armGeo, redMat);
+      armL.position.set(-0.36, 0.82, 0);
+      const armR = new THREE.Mesh(armGeo, redMat);
+      armR.position.set(0.36, 0.82, 0);
+
+      const legGeo = new THREE.BoxGeometry(0.22, 0.5, 0.24);
+      const legL = new THREE.Mesh(legGeo, darkMat);
+      legL.position.set(-0.14, 0.25, 0);
+      const legR = new THREE.Mesh(legGeo, darkMat);
+      legR.position.set(0.14, 0.25, 0);
+
+      group.add(head, torso, armL, armR, legL, legR);
+      group.visible = (cameraPersonMode !== "1st");
+      return group;
+    }
+
+    function createHeldWeaponMesh(itemId) {
+      if (!camera) return;
+      if (heldWeaponMesh) {
+        camera.remove(heldWeaponMesh);
+        heldWeaponMesh = null;
+      }
+      if (!itemId || !ITEM_META[itemId] || ITEM_META[itemId].kind === "block" || ITEM_META[itemId].kind === "portal") return;
+
+      const meta = ITEM_META[itemId];
+      const group = new THREE.Group();
+
+      if (meta.kind === "food") {
+        const meat = new THREE.Mesh(
+          new THREE.BoxGeometry(0.28, 0.14, 0.22),
+          new THREE.MeshLambertMaterial({ color: 0x8d4024 })
+        );
+        meat.position.set(0.32, -0.28, -0.52);
+        group.add(meat);
+      } else if (meta.kind === "bucket_empty" || meta.kind === "bucket_water") {
+        const metalMat = new THREE.MeshLambertMaterial({ color: 0xcfd8dc });
+        const base = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.04, 0.24), metalMat);
+        base.position.set(0, -0.1, 0);
+        const w1 = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.24, 0.04), metalMat);
+        w1.position.set(0, 0.02, 0.11);
+        const w2 = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.24, 0.04), metalMat);
+        w2.position.set(0, 0.02, -0.11);
+        const w3 = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.24, 0.26), metalMat);
+        w3.position.set(0.11, 0.02, 0);
+        const w4 = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.24, 0.26), metalMat);
+        w4.position.set(-0.11, 0.02, 0);
+        group.add(base, w1, w2, w3, w4);
+
+        if (meta.kind === "bucket_water") {
+          const waterFill = new THREE.Mesh(
+            new THREE.BoxGeometry(0.2, 0.14, 0.2),
+            new THREE.MeshLambertMaterial({ color: 0x2980b9, transparent: true, opacity: 0.85 })
+          );
+          waterFill.position.set(0, 0.02, 0);
+          group.add(waterFill);
+        }
+        group.position.set(0.32, -0.28, -0.52);
+        group.rotation.set(0.25, -0.2, 0);
+      } else {
+        const tierColor = meta.tier && TIER_INFO[meta.tier]
+          ? TIER_INFO[meta.tier].num
+          : (meta.kind === "flint_steel" ? 0xff6d00 : 0xcfd8dc);
+        const headMat = new THREE.MeshLambertMaterial({ color: tierColor });
+        const shaftMat = new THREE.MeshLambertMaterial({ color: 0x6e472b });
+
+        if (meta.kind === "spear") {
+          const shaft = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 1.38), shaftMat);
+          const tip = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.36), headMat);
+          tip.position.set(0, 0, -0.84);
+          group.add(shaft, tip);
+        } else if (meta.kind === "pickaxe") {
+          const handle = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.62, 0.06), shaftMat);
+          const head = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.09, 0.09), headMat);
+          head.position.set(0, 0.28, 0);
+          group.add(handle, head);
+          group.rotation.set(-0.35, -0.25, 0.15);
+        } else if (meta.kind === "axe") {
+          const handle = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.62, 0.06), shaftMat);
+          const blade = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.22, 0.08), headMat);
+          blade.position.set(-0.1, 0.22, 0);
+          group.add(handle, blade);
+          group.rotation.set(-0.35, -0.25, 0.15);
+        } else if (meta.kind === "shovel" || meta.kind === "hoe") {
+          const handle = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.64, 0.06), shaftMat);
+          const blade = new THREE.Mesh(
+            new THREE.BoxGeometry(meta.kind === "hoe" ? 0.26 : 0.18, 0.18, 0.06),
+            headMat
+          );
+          blade.position.set(0, 0.34, 0);
+          group.add(handle, blade);
+          group.rotation.set(-0.35, -0.2, 0.1);
+        } else {
+          const hilt = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.2, 0.06), shaftMat);
+          const guard = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.05, 0.08), headMat);
+          guard.position.set(0, 0.1, 0);
+          const blade = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.56, 0.04), headMat);
+          blade.position.set(0, 0.38, 0);
+          group.add(hilt, guard, blade);
+          group.rotation.set(-0.3, -0.2, 0.12);
+        }
+        group.position.set(0.36, -0.3, -0.55);
+      }
+
+      group.visible = (cameraPersonMode === "1st");
+      camera.add(group);
+      heldWeaponMesh = group;
+    }
+
+    function createBlockyCloudsAndSun() {
+      if (!scene) return;
+      sunMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(4.5, 4.5, 0.4),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+      );
+      sunMesh.position.set(16, 22, -26);
+      scene.add(sunMesh);
+
+      const cloudMat = new THREE.MeshBasicMaterial({
+        color: 0xf4f8ff,
+        transparent: true,
+        opacity: 0.92
+      });
+
+      const cloudClusters = [
+        [[-8, 16, -14, 6, 0.9, 3], [-2, 16, -14, 8, 0.9, 3], [-4, 16, -11, 4, 0.9, 3]],
+        [[6, 17, -18, 9, 0.9, 3], [11, 17, -16, 5, 0.9, 3]],
+        [[-14, 16.5, -22, 7, 0.9, 3], [14, 16, -10, 5, 0.9, 2.5]]
+      ];
+
+      cloudClusters.forEach((parts, idx) => {
+        const group = new THREE.Group();
+        parts.forEach(([px, py, pz, w, h, d]) => {
+          const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), cloudMat);
+          m.position.set(px, py, pz);
+          group.add(m);
+        });
+        group.userData.speed = 0.012 + idx * 0.004;
+        scene.add(group);
+        cloudMeshes.push(group);
+      });
+    }
+
+    function initThreeWorld() {
+      if (renderer || typeof THREE === "undefined") return;
+      const container = document.getElementById("world-screen");
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x8ab8f5);
+      scene.fog = new THREE.Fog(0x9bc4f7, 22, 46);
+
+      playerRoot = new THREE.Group();
+      scene.add(playerRoot);
+
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 95);
+      camera.position.set(0, 1.6, 0);
+      playerRoot.add(camera);
+
+      playerModelGroup = createPlayerBodyMesh();
+      playerRoot.add(playerModelGroup);
+
+      const crackGeo = new THREE.BoxGeometry(1.03, 1.03, 1.03);
+      const crackMat = new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.85
+      });
+      crackOverlayMesh = new THREE.Mesh(crackGeo, crackMat);
+      crackOverlayMesh.visible = false;
+      scene.add(crackOverlayMesh);
+
+      renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      container.insertBefore(renderer.domElement, container.firstChild);
+
+      ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+      scene.add(ambientLight);
+
+      sunLight = new THREE.DirectionalLight(0xffffff, 0.75);
+      sunLight.position.set(15, 30, 15);
+      scene.add(sunLight);
+
+      createBlockyCloudsAndSun();
+      setupControls();
+      animateWorld();
+    }
+
+    function addBlock(x, y, z, type) {
+      const rx = Math.round(x), ry = Math.round(y), rz = Math.round(z);
+      const key = bKey(rx, ry, rz);
+      if (blockMap.has(key)) return blockMap.get(key);
+
+      const mesh = new THREE.Mesh(blockGeo, materials[type] || materials.dirt);
+      mesh.position.set(rx, ry, rz);
+      mesh.userData.type = type;
+      scene.add(mesh);
+      blocks.push(mesh);
+      blockMap.set(key, mesh);
+      return mesh;
+    }
+
+    function changeBlockType(blockMesh, newType) {
+      if (!blockMesh || !materials[newType]) return;
+      blockMesh.material = materials[newType];
+      blockMesh.userData.type = newType;
+    }
+
+    function removeBlockMesh(blockMesh) {
+      if (!blockMesh) return;
+      const key = bKey(blockMesh.position.x, blockMesh.position.y, blockMesh.position.z);
+      blockMap.delete(key);
+      scene.remove(blockMesh);
+      const idx = blocks.indexOf(blockMesh);
+      if (idx !== -1) blocks.splice(idx, 1);
+    }
+
+    function buildStandingNetherPortal(baseX, baseY, baseZ) {
+      for (let dx = 0; dx < 4; dx++) {
+        for (let dy = 0; dy < 5; dy++) {
+          const isEdge = (dx === 0 || dx === 3 || dy === 0 || dy === 4);
+          const existing = blockMap.get(bKey(baseX + dx, baseY + dy, baseZ));
+          if (existing) removeBlockMesh(existing);
+          addBlock(baseX + dx, baseY + dy, baseZ, isEdge ? "obsidian" : "portal");
+        }
+      }
+    }
+
+    function tryIgniteNetherPortalAt(bx, by, bz) {
+      const candidates = [
+        [bx, by + 1, bz],
+        [bx, by - 1, bz],
+        [bx + 1, by, bz],
+        [bx - 1, by, bz],
+        [bx, by, bz + 1],
+        [bx, by, bz - 1]
+      ];
+
+      for (const [cx, cy, cz] of candidates) {
+        if (blockMap.has(bKey(cx, cy, cz))) continue;
+        if (ignitePlanePortal(cx, cy, cz, "x")) return true;
+        if (ignitePlanePortal(cx, cy, cz, "z")) return true;
+      }
+      return false;
+    }
+
+    function ignitePlanePortal(sx, sy, sz, axis) {
+      const isObs = (u, y) => {
+        const m = axis === "x" ? blockMap.get(bKey(u, y, sz)) : blockMap.get(bKey(sx, y, u));
+        return m && m.userData.type === "obsidian";
+      };
+      const isEmpty = (u, y) => {
+        const m = axis === "x" ? blockMap.get(bKey(u, y, sz)) : blockMap.get(bKey(sx, y, u));
+        return !m || m.userData.type === "portal";
+      };
+
+      const startU = axis === "x" ? sx : sz;
+      let minU = startU, maxU = startU;
+      let minY = sy, maxY = sy;
+
+      while (minU > startU - 8 && isEmpty(minU - 1, sy)) minU--;
+      while (maxU < startU + 8 && isEmpty(maxU + 1, sy)) maxU++;
+      while (minY > sy - 8 && isEmpty(startU, minY - 1)) minY--;
+      while (maxY < sy + 8 && isEmpty(startU, maxY + 1)) maxY++;
+
+      const width = maxU - minU + 1;
+      const height = maxY - minY + 1;
+      if (width < 2 || height < 3 || width > 8 || height > 8) return false;
+
+      for (let u = minU; u <= maxU; u++) {
+        if (!isObs(u, minY - 1) || !isObs(u, maxY + 1)) return false;
+      }
+      for (let y = minY; y <= maxY; y++) {
+        if (!isObs(minU - 1, y) || !isObs(maxU + 1, y)) return false;
+        for (let u = minU; u <= maxU; u++) {
+          if (!isEmpty(u, y)) return false;
+        }
+      }
+
+      for (let y = minY; y <= maxY; y++) {
+        for (let u = minU; u <= maxU; u++) {
+          if (axis === "x") addBlock(u, y, sz, "portal");
+          else addBlock(sx, y, u, "portal");
+        }
+      }
+      return true;
+    }
+
+    function teleportBetweenDimensions() {
+      if (portalCooldown > 0 || !playerRoot) return;
+      portalCooldown = 140;
+
+      const overlay = document.getElementById("portal-warp-overlay");
+      const goingToNether = (currentDimension === "overworld");
+      currentDimension = goingToNether ? "nether" : "overworld";
+
+      overlay.textContent = goingToNether
+        ? "🌀 Teleporting to THE NETHER 🔥..."
+        : "🌀 Returning to OVERWORLD 🌍...";
+      overlay.style.display = "flex";
+
+      clearSceneObjectsOnly();
+
+      const spawnX = 0;
+      const spawnZ = 4;
+      const groundY = Math.max(getTerrainHeight(spawnX, spawnZ), WATER_LEVEL);
+      playerRoot.position.set(spawnX, groundY + 1.0, spawnZ);
+      velY = 0;
+      isFalling = false;
+      fallStartY = playerRoot.position.y;
+
+      updateInfiniteChunks();
+      buildStandingNetherPortal(spawnX + 3, groundY + 1, spawnZ);
+
+      document.getElementById("hud-dim").textContent = goingToNether
+        ? "Dimension: The Nether 🔥"
+        : "Dimension: Overworld 🌍";
+
+      saveCurrentWorldState();
+      setTimeout(() => { overlay.style.display = "none"; }, 900);
+      showToast(goingToNether ? "🔥 Welcome to THE NETHER!" : "🌍 Returned to OVERWORLD!");
+    }
+
+    function spawnFullTree(wx, topY, wz, isSnowy = false) {
+      const trunkH = 3 + (Math.abs(wx * 13 + wz * 7) % 2);
+      for (let h = 1; h <= trunkH; h++) {
+        addBlock(wx, topY + h, wz, "wood");
+      }
+      const canopyBase = topY + trunkH;
+      for (let dx = -2; dx <= 2; dx++) {
+        for (let dz = -2; dz <= 2; dz++) {
+          for (let dy = 0; dy <= 2; dy++) {
+            const dist = Math.abs(dx) + Math.abs(dz) + dy;
+            if (dx === 0 && dz === 0 && dy === 0) continue;
+            if (dist <= 3) {
+              addBlock(wx + dx, canopyBase + dy, wz + dz, (isSnowy && dy === 2) ? "snow" : "leaves");
+            }
+          }
+        }
+      }
+    }
+
+    function spawnCactus(wx, topY, wz) {
+      const h = 2 + (Math.abs(wx * 7 + wz * 11) % 2);
+      for (let i = 1; i <= h; i++) {
+        addBlock(wx, topY + i, wz, "cactus");
+      }
+    }
+
+    function spawnGlowstoneCluster(wx, topY, wz) {
+      addBlock(wx, topY + 6, wz, "glowstone");
+      addBlock(wx + 1, topY + 6, wz, "glowstone");
+      addBlock(wx, topY + 7, wz, "glowstone");
+    }
+
+    function spawnMob(kind, x, y, z) {
+      if (selectedDifficulty === "Peaceful") return;
+      const group = new THREE.Group();
+      const texPack = MOB_TEXTURES[kind] || MOB_TEXTURES.pig;
+      const bodyMat = new THREE.MeshLambertMaterial({ map: texPack.body });
+      const headMat = new THREE.MeshLambertMaterial({ map: texPack.head });
+
+      const attachMobRef = (obj) => {
+        obj.userData.mobRoot = group;
+        return obj;
+      };
+
+      let hp = 10;
+      let speed = 0.025;
+      let aggro = false;
+      let hostile = false;
+      let foodMob = (kind === "cow" || kind === "pig" || kind === "sheep");
+      let yOffset = 0;
+
+      if (kind === "ghast") {
+        hp = 12; speed = 0.022; hostile = true; yOffset = 3.2;
+        const ghastMats = [bodyMat, bodyMat, bodyMat, bodyMat, headMat, bodyMat];
+        group.add(attachMobRef(new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), ghastMats)));
+      } else if (kind === "blaze") {
+        hp = 14; speed = 0.028; hostile = true; yOffset = 1.4;
+        const blazeMats = [bodyMat, bodyMat, bodyMat, bodyMat, headMat, bodyMat];
+        group.add(attachMobRef(new THREE.Mesh(new THREE.BoxGeometry(0.65, 1.1, 0.65), blazeMats)));
+      } else if (kind === "magma_cube") {
+        hp = 10; speed = 0.032; hostile = true;
+        const cubeMats = [bodyMat, bodyMat, bodyMat, bodyMat, headMat, bodyMat];
+        group.add(attachMobRef(new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), cubeMats)));
+      } else if (kind === "enderman") {
+        hp = 18; speed = 0.045; hostile = true;
+        const bodyMesh = attachMobRef(new THREE.Mesh(new THREE.BoxGeometry(0.45, 1.4, 0.35), bodyMat));
+        bodyMesh.position.y = 0.85;
+        const headMats = [bodyMat, bodyMat, bodyMat, bodyMat, headMat, bodyMat];
+        const headMesh = attachMobRef(new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.48, 0.48), headMats));
+        headMesh.position.y = 1.78;
+        group.add(bodyMesh, headMesh);
+      } else if (kind === "iron_golem") {
+        hp = 35; speed = 0.022; aggro = true;
+        const bodyMesh = attachMobRef(new THREE.Mesh(new THREE.BoxGeometry(1.05, 1.25, 0.75), bodyMat));
+        bodyMesh.position.y = 0.78;
+        const headMats = [bodyMat, bodyMat, bodyMat, bodyMat, headMat, bodyMat];
+        const headMesh = attachMobRef(new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.55, 0.55), headMats));
+        headMesh.position.y = 1.62;
+        group.add(bodyMesh, headMesh);
+      } else {
+        if (kind === "zombie" || kind === "skeleton" || kind === "creeper" || kind === "spider" || kind === "hoglin" || kind === "zombified_piglin") {
+          hostile = true;
+        }
+        if (kind === "wolf") aggro = true;
+        if (kind === "spider") speed = 0.04;
+        if (kind === "creeper") hp = 10;
+        if (kind === "hoglin") hp = 18;
+
+        const body = attachMobRef(new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.65, 1.1), bodyMat));
+        body.position.set(0, 0.55, 0);
+        group.add(body);
+
+        const headMats = [bodyMat, bodyMat, bodyMat, bodyMat, headMat, bodyMat];
+        const head = attachMobRef(new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.58, 0.58), headMats));
+        head.position.set(0, 0.85, 0.65);
+        group.add(head);
+
+        const legGeo = new THREE.BoxGeometry(0.2, 0.35, 0.2);
+        const legOffsets = [[-0.25, 0.175, 0.35], [0.25, 0.175, 0.35], [-0.25, 0.175, -0.35], [0.25, 0.175, -0.35]];
+        legOffsets.forEach(([lx, ly, lz]) => {
+          const leg = attachMobRef(new THREE.Mesh(legGeo, bodyMat));
+          leg.position.set(lx, ly, lz);
+          group.add(leg);
+        });
+      }
+
+      group.position.set(x, y + yOffset, z);
+      group.userData = {
+        kind,
+        isPlayerEntity: false,
+        foodMob,
+        hp,
+        speed,
+        hostile,
+        aggro,
+        yOffset,
+        dir: Math.random() * Math.PI * 2,
+        timer: 60 + Math.floor(Math.random() * 120),
+        attackCd: 0
+      };
+      scene.add(group);
+      mobs.push(group);
+    }
+
+    const CHUNK_SIZE = 8;
+    function updateInfiniteChunks() {
+      if (!playerRoot) return;
+      const pcx = Math.floor(playerRoot.position.x / CHUNK_SIZE);
+      const pcz = Math.floor(playerRoot.position.z / CHUNK_SIZE);
+      const radius = 1;
+
+      for (let cx = pcx - radius; cx <= pcx + radius; cx++) {
+        for (let cz = pcz - radius; cz <= pcz + radius; cz++) {
+          const key = `${currentDimension}_${cx},${cz}`;
+          if (generatedChunks.has(key)) continue;
+          generatedChunks.add(key);
+
+          for (let lx = 0; lx < CHUNK_SIZE; lx++) {
+            for (let lz = 0; lz < CHUNK_SIZE; lz++) {
+              const wx = cx * CHUNK_SIZE + lx;
+              const wz = cz * CHUNK_SIZE + lz;
+              const biome = getBiomeAt(wx, wz);
+              const topY = getTerrainHeight(wx, wz);
+
+              const startMinY = Math.min(topY - 12, -16);
+              for (let wy = topY; wy >= startMinY; wy--) {
+                const bType = getBlockTypeAtLayer(wx, wy, wz, topY, biome);
+                if (bType) addBlock(wx, wy, wz, bType);
+              }
+              addBlock(wx, BEDROCK_Y, wz, "bedrock");
+
+              if (topY <= WATER_LEVEL) {
+                for (let wy = topY + 1; wy <= WATER_LEVEL; wy++) {
+                  addBlock(wx, wy, wz, currentDimension === "nether" ? "lava" : "water");
+                }
+              } else {
+                const featureHash = Math.abs((wx * 37 + wz * 17) % 43);
+                if (currentDimension === "nether") {
+                  if (featureHash === 0) spawnGlowstoneCluster(wx, topY, wz);
+                } else if (biome.id === "desert") {
+                  if (featureHash === 0) spawnCactus(wx, topY, wz);
+                } else if (biome.id === "forest") {
+                  if (featureHash === 0 || featureHash === 14) spawnFullTree(wx, topY, wz, false);
+                } else if (biome.id === "snow") {
+                  if (featureHash === 0) spawnFullTree(wx, topY, wz, true);
+                } else {
+                  if (featureHash === 0) spawnFullTree(wx, topY, wz, false);
+                }
+              }
+            }
+          }
+
+          if (selectedDifficulty !== "Peaceful") {
+            const mx = cx * CHUNK_SIZE + 4;
+            const mz = cz * CHUNK_SIZE + 4;
+            const rawY = getTerrainHeight(mx, mz);
+            const biome = getBiomeAt(mx, mz);
+            if (rawY > WATER_LEVEL) {
+              if (currentDimension === "nether") {
+                const nKinds = ["piglin", "zombified_piglin", "hoglin", "magma_cube", "blaze", "ghast", "strider"];
+                spawnMob(nKinds[Math.abs(cx * 5 + cz * 3) % nKinds.length], mx, rawY + 0.5, mz);
+              } else if (biome.id !== "desert") {
+                const isNight = (dayTime > 0.55 || dayTime < 0.12) || (activeServerConfig && activeServerConfig.timeMode === "night");
+                const pool = isNight
+                  ? ["zombie", "skeleton", "creeper", "spider", "enderman", "cow", "pig", "sheep"]
+                  : ["cow", "pig", "sheep", "zombie", "creeper", "spider"];
+                spawnMob(pool[Math.abs(cx * 3 + cz * 7) % pool.length], mx, rawY + 0.5, mz);
+              }
+            }
+          }
+        }
+      }
+
+      if (playerRoot.position.y < -10) {
+        const px = Math.round(playerRoot.position.x);
+        const pz = Math.round(playerRoot.position.z);
+        const deepTargetY = Math.max(BEDROCK_Y, Math.floor(playerRoot.position.y) - 6);
+        for (let dx = -2; dx <= 2; dx++) {
+          for (let dz = -2; dz <= 2; dz++) {
+            ensureColumnSolidDownTo(px + dx, pz + dz, deepTargetY);
+          }
+        }
+      }
+    }
+
+    function getHeldItemId() {
+      return hotbarItems[selectedSlotIndex] ? hotbarItems[selectedSlotIndex].id : null;
+    }
+
+    function renderHotbar() {
+      const hotbar = document.getElementById("hotbar");
+      hotbar.innerHTML = "";
+      if (hotbarItems.length === 0) {
+        hotbar.innerHTML = `<span style="font-size:12px;color:#ccc;padding:4px 8px;">Empty Inventory</span>`;
+        createHeldWeaponMesh(null);
+        return;
+      }
+      if (selectedSlotIndex >= hotbarItems.length) selectedSlotIndex = 0;
+
+      hotbarItems.forEach((item, idx) => {
+        const slot = document.createElement("div");
+        slot.className = "slot" + (idx === selectedSlotIndex ? " active" : "");
+        slot.textContent = item.label;
+        slot.style.background = item.color;
+        slot.addEventListener("click", (e) => {
+          e.stopPropagation();
+          selectedSlotIndex = idx;
+          renderHotbar();
+        });
+        hotbar.appendChild(slot);
+      });
+
+      createHeldWeaponMesh(getHeldItemId());
+    }
+
+    function addItemToHotbar(itemId) {
+      const existingIdx = hotbarItems.findIndex(i => i.id === itemId);
+      if (existingIdx !== -1) {
+        selectedSlotIndex = existingIdx;
+        renderHotbar();
+        return;
+      }
+      const meta = ITEM_META[itemId];
+      if (!meta) return;
+      hotbarItems.push({ id: itemId, ...meta });
+      selectedSlotIndex = hotbarItems.length - 1;
+      renderHotbar();
+    }
+
+    function updateCraftCountsUI() {
+      document.getElementById("resource-counts").textContent =
+        `Wood: ${resources.wood} | Cobble: ${resources.cobble} | Iron: ${resources.iron} | Gold: ${resources.gold} | Diamond: ${resources.diamond} | Obsidian: ${resources.obsidian}`;
+    }
+
+    function selectCraftTier(tier) {
+      activeCraftTier = tier;
+      document.querySelectorAll(".tier-tab").forEach(btn => {
+        btn.classList.toggle("selected", btn.dataset.tier === tier);
+      });
+      renderCraftGrid();
+    }
+
+    function renderCraftGrid() {
+      const grid = document.getElementById("craft-grid");
+      grid.innerHTML = "";
+      const keys = activeCraftTier === "utility"
+        ? ["obsidian", "flint_and_steel", "shears", "bucket", "brush", "fishing_rod"]
+        : [`${activeCraftTier}_spear`, `${activeCraftTier}_pickaxe`, `${activeCraftTier}_axe`, `${activeCraftTier}_shovel`, `${activeCraftTier}_hoe`, `${activeCraftTier}_sword`];
+
+      keys.forEach(itemId => {
+        const r = RECIPES[itemId];
+        if (!r) return;
+        const card = document.createElement("div");
+        card.className = "craft-item";
+        card.innerHTML = `
+          <div class="craft-item-title">${r.label}</div>
+          <div class="craft-recipe">${r.desc}</div>
+          <button type="button" class="mc-btn craft-do-btn" onclick="craftItem('${itemId}')">Craft</button>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function openCraftModal() {
+      updateCraftCountsUI();
+      renderCraftGrid();
+      document.getElementById("craft-overlay").style.display = "flex";
+    }
+
+    function closeCraftModal() {
+      document.getElementById("craft-overlay").style.display = "none";
+    }
+
+    function craftItem(itemId) {
+      const r = RECIPES[itemId];
+      if (!r) return;
+      for (const [resKey, needed] of Object.entries(r.cost)) {
+        if ((resources[resKey] || 0) < needed) {
+          showToast(`${resKey.toUpperCase()} کم ہے!`);
+          return;
+        }
+      }
+      for (const [resKey, needed] of Object.entries(r.cost)) {
+        resources[resKey] -= needed;
+      }
+      if (itemId === "obsidian") {
+        resources.obsidian += (r.amount || 4);
+      }
+      addItemToHotbar(itemId);
+      updateCraftCountsUI();
+      showToast(`${ITEM_META[itemId].label} Crafted!`);
+    }
+
+    function saveCurrentWorldState() {
+      if (activeServerConfig || !currentWorldId || !playerRoot) return;
+
+      const snapshot = {
+        id: currentWorldId,
+        name: currentWorldName || `World ${savedWorlds.length + 1}`,
+        seed: currentWorldSeed,
+        dimension: currentDimension,
+        mode: selectedMode,
+        difficulty: selectedDifficulty,
+        pos: {
+          x: playerRoot.position.x,
+          y: playerRoot.position.y,
+          z: playerRoot.position.z
+        },
+        yaw: targetYaw,
+        pitch: targetPitch,
+        dayTime: dayTime,
+        hearts: playerHearts,
+        food: playerFood,
+        stolenHearts: stolenHearts,
+        resources: { ...resources },
+        hotbarIds: hotbarItems.map(i => i.id),
+        selectedSlotIndex: selectedSlotIndex,
+        updatedAt: Date.now()
+      };
+
+      const idx = savedWorlds.findIndex(w => w.id === currentWorldId);
+      if (idx !== -1) {
+        savedWorlds[idx] = snapshot;
+      } else {
+        savedWorlds.unshift(snapshot);
+      }
+      persistSavedWorlds();
+    }
+
+    function clearSceneObjectsOnly() {
+      if (!scene) return;
+      blocks.forEach(b => scene.remove(b));
+      blocks = [];
+      blockMap.clear();
+      mobs.forEach(m => scene.remove(m));
+      mobs = [];
+      generatedChunks.clear();
+      createHeldWeaponMesh(null);
+      resetMiningState();
+    }
+
+    function handleCreateWorldClick() {
+      lockLandscapeOrientation();
+      activeServerConfig = null;
+      currentDimension = "overworld";
+      stolenHearts = 0;
+      hungerMoveAccum = 0;
+      starveTick = 0;
+      document.getElementById("hud-server").style.display = "none";
+      document.getElementById("hud-dim").textContent = "Dimension: Overworld 🌍";
+      initThreeWorld();
+      clearSceneObjectsOnly();
+
+      const worldNum = savedWorlds.length + 1;
+      currentWorldId = "world_" + Date.now();
+      currentWorldName = `World #${worldNum}`;
+      currentWorldSeed = Math.floor(Math.random() * 10000);
+
+      resources = { wood: 0, cobble: 0, coal: 0, iron: 0, gold: 0, diamond: 0, lapis: 0, redstone: 0, obsidian: 0, netherrack: 0 };
+      hotbarItems = [];
+      selectedSlotIndex = 0;
+      dayTime = 0.25;
+
+      if (playerRoot) {
+        const startY = Math.max(getTerrainHeight(0, 4), WATER_LEVEL) + 0.6;
+        playerRoot.position.set(0, startY, 4);
+        yaw = 0; pitch = 0;
+        targetYaw = 0; targetPitch = 0;
+        fallStartY = startY;
+        isFalling = false;
+        velY = 0;
+      }
+
+      document.getElementById("hud-mode").textContent = `Mode: ${selectedMode} (${selectedDifficulty})`;
+      const bars = document.getElementById("survival-bars");
+      if (selectedMode === "Survival") {
+        bars.style.display = "flex";
+        const startHearts = selectedDifficulty === "Hardcore" ? 1 : 10;
+        renderSurvivalBars(startHearts, 10);
+      } else {
+        bars.style.display = "none";
+        giveCreativeKit();
+        selectedSlotIndex = 0;
+      }
+
+      renderHotbar();
+      updateInfiniteChunks();
+      worldRunning = true;
+      saveCurrentWorldState();
+      showScreen("world-screen");
+    }
+
+    function resumeSavedWorld(worldId) {
+      lockLandscapeOrientation();
+      const found = savedWorlds.find(w => w.id === worldId);
+      if (!found) return;
+
+      activeServerConfig = null;
+      document.getElementById("hud-server").style.display = "none";
+
+      initThreeWorld();
+      clearSceneObjectsOnly();
+
+      currentWorldId = found.id;
+      currentWorldName = found.name;
+      currentWorldSeed = typeof found.seed === "number" ? found.seed : 1337;
+      currentDimension = found.dimension || "overworld";
+      selectedMode = found.mode || "Survival";
+      selectedDifficulty = found.difficulty || "Hard";
+      stolenHearts = typeof found.stolenHearts === "number" ? found.stolenHearts : 0;
+      hungerMoveAccum = 0;
+      starveTick = 0;
+      syncDifficultyButtons();
+      document.getElementById("btn-mode-survival").classList.toggle("selected", selectedMode === "Survival");
+      document.getElementById("btn-mode-creative").classList.toggle("selected", selectedMode === "Creative");
+
+      document.getElementById("hud-dim").textContent = currentDimension === "nether"
+        ? "Dimension: The Nether 🔥"
+        : "Dimension: Overworld 🌍";
+
+      resources = Object.assign({ wood: 0, cobble: 0, coal: 0, iron: 0, gold: 0, diamond: 0, lapis: 0, redstone: 0, obsidian: 0, netherrack: 0 }, found.resources || {});
+      dayTime = typeof found.dayTime === "number" ? found.dayTime : 0.25;
+
+      hotbarItems = [];
+      (found.hotbarIds || []).forEach(id => {
+        if (ITEM_META[id]) hotbarItems.push({ id, ...ITEM_META[id] });
+      });
+      selectedSlotIndex = typeof found.selectedSlotIndex === "number" ? found.selectedSlotIndex : 0;
+
+      if (playerRoot) {
+        const px = found.pos ? found.pos.x : 0;
+        const pz = found.pos ? found.pos.z : 4;
+        const py = found.pos ? found.pos.y : (getTerrainHeight(px, pz) + 0.6);
+        playerRoot.position.set(px, py, pz);
+        yaw = typeof found.yaw === "number" ? found.yaw : 0;
+        pitch = typeof found.pitch === "number" ? found.pitch : 0;
+        targetYaw = yaw;
+        targetPitch = pitch;
+        fallStartY = py;
+        isFalling = false;
+        velY = 0;
+      }
+
+      document.getElementById("hud-mode").textContent = `Mode: ${selectedMode} (${selectedDifficulty})`;
+      const bars = document.getElementById("survival-bars");
+      if (selectedMode === "Survival") {
+        bars.style.display = "flex";
+        const h = typeof found.hearts === "number" ? found.hearts : getCurrentMaxHearts();
+        const f = typeof found.food === "number" ? found.food : 10;
+        renderSurvivalBars(h, f);
+      } else {
+        bars.style.display = "none";
+      }
+
+      renderHotbar();
+      updateInfiniteChunks();
+      worldRunning = true;
+      showScreen("world-screen");
+      showToast(`${currentWorldName} Loaded!`);
+    }
+
+    function exitWorldToMenu() {
+      saveCurrentWorldState();
+      worldRunning = false;
+      resetMiningState();
+      showScreen("menu-screen");
+    }
+
+    let lookPointerId = null;
+    let prevLookX = 0, prevLookY = 0;
+    let yaw = 0, pitch = 0, targetYaw = 0, targetPitch = 0;
+    let lookMovedDist = 0;
+    const moveInput = { fwd: false, back: false, left: false, right: false };
+    let velY = 0, canJump = false;
+    let fallStartY = 0, isFalling = false;
+    let swingAnim = 0;
+
+    let isMiningHeld = false;
+    let btnHitDown = false;
+    let miningBlock = null;
+    let miningProgress = 0;
+
+    const raycaster = new THREE.Raycaster();
+    const centerVec = new THREE.Vector2(0, 0);
+
+    function resetMiningState() {
+      isMiningHeld = false;
+      miningBlock = null;
+      miningProgress = 0;
+      document.getElementById("mine-bar-wrap").style.display = "none";
+      document.getElementById("mine-bar-fill").style.width = "0%";
+      if (crackOverlayMesh) crackOverlayMesh.visible = false;
+    }
+
+    function getHitBlock() {
+      if (!camera) return null;
+      camera.updateMatrixWorld();
+      raycaster.setFromCamera(centerVec, camera);
+      const hits = raycaster.intersectObjects(blocks, false);
+      return hits.length > 0 && hits[0].distance < 7.5 ? hits[0] : null;
+    }
+
+    function tryScoopWaterWithBucket(targetWaterBlock) {
+      const held = getHeldItemId();
+      const meta = held ? ITEM_META[held] : null;
+      if (meta && meta.kind === "bucket_empty") {
+        removeBlockMesh(targetWaterBlock);
+        hotbarItems[selectedSlotIndex] = { id: "water_bucket", ...ITEM_META.water_bucket };
+        renderHotbar();
+        swingAnim = 1.0;
+        saveCurrentWorldState();
+        showToast("🪣💧 پانی بکٹ میں بھر گیا!");
+        return true;
+      }
+      if (miningBlock !== targetWaterBlock) {
+        miningBlock = targetWaterBlock;
+        showToast("💧 پانی ٹوٹتا نہیں! بکٹ سے بھریں۔");
+      }
+      return false;
+    }
+
+    function onMobDefeated(mob) {
+      const ud = mob.userData;
+      scene.remove(mob);
+      mobs = mobs.filter(m => m !== mob);
+
+      if (ud.isPlayerEntity) {
+        stolenHearts += 1;
+        const newMax = getCurrentMaxHearts();
+        renderSurvivalBars(Math.min(newMax, playerHearts + 1), playerFood);
+        showToast(`⚔️ Player ہرایا! +1 Heart چوری (پکا آپ کے پاس، کل Max: ${newMax} ❤️)`);
+        return;
+      }
+
+      if (ud.foodMob) {
+        addItemToHotbar("cooked_meat");
+        showToast(`🍖 ${ud.kind.toUpperCase()} سے کھانا (Meat) ملا! کھا کر ہارٹ بھریں۔`);
+        return;
+      }
+
+      if (activeServerConfig && activeServerConfig.type === "Lifesteal") {
+        showToast(`💀 ${ud.kind.toUpperCase()} ہرایا! (صرف Player مارنے پر ہارٹ چوری ہوتا ہے)`);
+      } else {
+        showToast(`💀 ${ud.kind.toUpperCase()} defeated!`);
+      }
+    }
+
+    function attackMobIfTargeted() {
+      if (!camera) return false;
+      camera.updateMatrixWorld();
+      const held = getHeldItemId();
+      const meta = held ? ITEM_META[held] : null;
+      const reach = (meta && meta.kind === "spear") ? 8.5 : 6.5;
+
+      raycaster.setFromCamera(centerVec, camera);
+      const mobMeshes = [];
+      mobs.forEach(g => g.children.forEach(c => mobMeshes.push(c)));
+      const mobHits = raycaster.intersectObjects(mobMeshes, false);
+
+      if (mobHits.length > 0 && mobHits[0].distance <= reach) {
+        const mob = mobHits[0].object.userData.mobRoot;
+        if (mob) {
+          swingAnim = 1.0;
+
+          if (meta && meta.kind === "spear") {
+            if (meta.tier === "diamond") {
+              const forwardDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+              forwardDir.y = 0;
+              if (forwardDir.lengthSq() > 0) {
+                forwardDir.normalize();
+                playerRoot.position.x = mob.position.x + forwardDir.x * 1.4;
+                playerRoot.position.z = mob.position.z + forwardDir.z * 1.4;
+              }
+              onMobDefeated(mob);
+              return true;
+            }
+            if (meta.tier === "wood") {
+              mob.userData.hp -= 3;
+              if (selectedMode === "Survival" && selectedDifficulty !== "Peaceful") {
+                renderSurvivalBars(playerHearts, playerFood - 1);
+              }
+              if (mob.userData.hp <= 0) {
+                onMobDefeated(mob);
+              } else {
+                showToast(`🪵 Wood Spear: -3 HP! (-1 Hunger)`);
+              }
+              return true;
+            }
+          }
+
+          if (meta && meta.kind === "flint_steel") {
+            onMobDefeated(mob);
+            return true;
+          }
+
+          if (meta && meta.kind === "fishing_rod") {
+            mob.position.x += Math.sin(yaw) * 1.1;
+            mob.position.z += Math.cos(yaw) * 1.1;
+            showToast(`🎣 Fishing Rod سے ${mob.userData.kind.toUpperCase()} کھینچا!`);
+            return true;
+          }
+
+          let dmg = 3;
+          if (meta && meta.tier && TIER_INFO[meta.tier]) {
+            dmg = meta.kind === "axe" ? TIER_INFO[meta.tier].dmg + 1 : TIER_INFO[meta.tier].dmg;
+          }
+
+          mob.userData.hp -= dmg;
+          mob.position.x += -Math.sin(yaw) * 0.45;
+          mob.position.z += -Math.cos(yaw) * 0.45;
+          if (mob.userData.hp <= 0) {
+            onMobDefeated(mob);
+          } else {
+            showToast(`Hit ${mob.userData.kind}! (-${dmg} HP)`);
+          }
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function eatHeldFoodIfAny() {
+      const held = getHeldItemId();
+      const meta = held ? ITEM_META[held] : null;
+      if (!meta || meta.kind !== "food") return false;
+
+      if (playerFood >= 10 && playerHearts >= getCurrentMaxHearts()) {
+        showToast("🍖 کھانا اور ہیلتھ پہلے سے فل ہیں!");
+        return true;
+      }
+
+      const nextFood = Math.min(10, playerFood + (meta.restoreFood || 4));
+      const nextHearts = Math.min(getCurrentMaxHearts(), playerHearts + (meta.restoreHearts || 3));
+      renderSurvivalBars(nextHearts, nextFood);
+      hotbarItems.splice(selectedSlotIndex, 1);
+      renderHotbar();
+      swingAnim = 1.0;
+      saveCurrentWorldState();
+      showToast(`🍖 کھانا کھایا! Hunger: ${nextFood}/10, Hearts: ${nextHearts}/${getCurrentMaxHearts()} ❤️`);
+      return true;
+    }
+
+    function completeBlockBreak(blockMesh) {
+      const bType = blockMesh.userData.type;
+      if (bType === "bedrock") {
+        resetMiningState();
+        showToast("🪨 Bedrock ٹوٹ نہیں سکتا!");
+        return;
+      }
+      if (bType === "water") {
+        tryScoopWaterWithBucket(blockMesh);
+        resetMiningState();
+        return;
+      }
+
+      const held = getHeldItemId();
+      const meta = held ? ITEM_META[held] : null;
+      const bx = Math.round(blockMesh.position.x);
+      const by = Math.round(blockMesh.position.y);
+      const bz = Math.round(blockMesh.position.z);
+
+      removeBlockMesh(blockMesh);
+      ensureColumnSolidDownTo(bx, bz, Math.max(BEDROCK_Y, by - 4));
+
+      if (bType === "wood") {
+        resources.wood += (meta && meta.kind === "axe") ? 2 : 1;
+        addItemToHotbar("wood");
+      } else if (bType === "cobble") {
+        resources.cobble += 1;
+        addItemToHotbar("cobble");
+      } else if (bType === "coal") {
+        resources.coal += 1;
+        addItemToHotbar("coal");
+        showToast("⚫ +1 Coal!");
+      } else if (bType === "iron") {
+        resources.iron += 1;
+        addItemToHotbar("iron");
+        showToast("+1 Iron!");
+      } else if (bType === "gold") {
+        resources.gold += 1;
+        addItemToHotbar("gold");
+        showToast("+1 Gold!");
+      } else if (bType === "diamond") {
+        resources.diamond += 1;
+        addItemToHotbar("diamond");
+        showToast("💎 +1 Diamond!");
+      } else if (bType === "obsidian") {
+        resources.obsidian += 1;
+        addItemToHotbar("obsidian");
+        showToast("🟪 +1 Obsidian!");
+      } else if (bType === "lapis") {
+        resources.lapis += 1;
+        addItemToHotbar("lapis");
+        showToast("🔵 +1 Lapis!");
+      } else if (bType === "redstone") {
+        resources.redstone += 1;
+        addItemToHotbar("redstone");
+        showToast("🔴 +1 Redstone!");
+      } else if (bType === "netherrack") {
+        resources.netherrack += 1;
+        addItemToHotbar("netherrack");
+      } else if (selectedMode === "Survival" && bType && bType !== "portal" && bType !== "lava") {
+        addItemToHotbar(bType);
+      }
+      saveCurrentWorldState();
+      resetMiningState();
+    }
+
+    function updateMiningLoop() {
+      if (!isMiningHeld || !worldRunning) return;
+
+      const hit = getHitBlock();
+      if (!hit) {
+        resetMiningState();
+        isMiningHeld = true;
+        return;
+      }
+
+      const target = hit.object;
+      const bType = target.userData.type;
+
+      if (bType === "bedrock") {
+        if (miningBlock !== target) {
+          miningBlock = target;
+          showToast("🪨 Bedrock indestructible ہے!");
+        }
+        return;
+      }
+
+      if (bType === "water") {
+        tryScoopWaterWithBucket(target);
+        resetMiningState();
+        return;
+      }
+
+      const held = getHeldItemId();
+      const meta = held ? ITEM_META[held] : null;
+
+      if (bType === "obsidian" && selectedMode === "Survival" && (!meta || meta.kind !== "pickaxe" || meta.tier !== "diamond")) {
+        if (miningBlock !== target) {
+          miningBlock = target;
+          showToast("🟪 Obsidian توڑنے کے لیے Diamond Pickaxe چاہیے!");
+        }
+        return;
+      }
+
+      const needsPickaxe = (
+        bType === "cobble" || bType === "coal" || bType === "iron" ||
+        bType === "gold" || bType === "diamond" || bType === "lapis" || bType === "redstone" ||
+        bType === "netherrack" || bType === "nether_quartz"
+      );
+      if (needsPickaxe && (!meta || meta.kind !== "pickaxe")) {
+        if (miningBlock !== target) {
+          miningBlock = target;
+          showToast("⛏️ اس کے لیے Pickaxe چاہیے! ہاتھ سے نہیں ٹوٹے گا۔");
+        }
+        return;
+      }
+
+      if (selectedMode === "Creative" || (activeServerConfig && activeServerConfig.type === "Creative")) {
+        completeBlockBreak(target);
+        isMiningHeld = true;
+        return;
+      }
+
+      if (miningBlock !== target) {
+        miningBlock = target;
+        miningProgress = 0;
+      }
+
+      let speed = 0.032;
+      const tierMult = (meta && meta.tier && TIER_INFO[meta.tier]) ? TIER_INFO[meta.tier].speed : 1.0;
+
+      if (bType === "obsidian") {
+        speed = 0.022;
+      } else if (bType === "dirt" || bType === "grass" || bType === "sand" || bType === "snow" || bType === "soul_sand") {
+        speed = (meta && meta.kind === "shovel") ? 0.08 * tierMult : 0.036;
+      } else if (bType === "leaves" || bType === "cactus") {
+        if (meta && (meta.kind === "shears" || meta.kind === "hoe")) speed = 0.14;
+        else speed = 0.036;
+      } else if (bType === "wood") {
+        speed = (meta && meta.kind === "axe") ? 0.065 * tierMult : 0.028;
+      } else if (needsPickaxe && meta && meta.kind === "pickaxe") {
+        speed = 0.025 * tierMult;
+      }
+
+      miningProgress += speed;
+      swingAnim = 0.6;
+
+      const pct = Math.min(100, Math.round(miningProgress * 100));
+      const wrap = document.getElementById("mine-bar-wrap");
+      const fill = document.getElementById("mine-bar-fill");
+      wrap.style.display = "block";
+      fill.style.width = pct + "%";
+
+      if (crackOverlayMesh) {
+        crackOverlayMesh.visible = true;
+        const scale = 1.01 + miningProgress * 0.04;
+        crackOverlayMesh.scale.set(scale, scale, scale);
+        crackOverlayMesh.position.set(
+          target.position.x + Math.sin(miningProgress * 45) * 0.015,
+          target.position.y,
+          target.position.z + Math.cos(miningProgress * 45) * 0.015
+        );
+      }
+
+      if (miningProgress >= 1.0) {
+        completeBlockBreak(target);
+        isMiningHeld = true;
+      }
+    }
+
+    function placeTargetBlock() {
+      if (eatHeldFoodIfAny()) return;
+
+      const held = getHeldItemId();
+      if (!held || !ITEM_META[held]) {
+        showToast("بلاک یا ٹول منتخب کریں!");
+        return;
+      }
+      const meta = ITEM_META[held];
+      const hit = getHitBlock();
+
+      if (meta.kind === "shovel" && hit && hit.object.userData.type === "grass") {
+        changeBlockType(hit.object, "path");
+        swingAnim = 1.0;
+        saveCurrentWorldState();
+        showToast("🥄 Dirt Path بن گیا!");
+        return;
+      }
+
+      if (meta.kind === "hoe" && hit && (hit.object.userData.type === "grass" || hit.object.userData.type === "dirt")) {
+        changeBlockType(hit.object, "farmland");
+        swingAnim = 1.0;
+        saveCurrentWorldState();
+        showToast("🌾 Farmland تیار ہو گیا!");
+        return;
+      }
+
+      if (meta.kind === "flint_steel" && hit) {
+        swingAnim = 1.0;
+        const bx = Math.round(hit.object.position.x);
+        const by = Math.round(hit.object.position.y);
+        const bz = Math.round(hit.object.position.z);
+
+        if (hit.object.userData.type === "obsidian" && tryIgniteNetherPortalAt(bx, by, bz)) {
+          saveCurrentWorldState();
+          showToast("🌀 Nether Portal آن ہو گیا! اندر جائیں!");
+        } else {
+          showToast("🔥 4x5 Obsidian فریم بنا کر اندر Flint & Steel چلائیں!");
+        }
+        return;
+      }
+
+      if (meta.kind === "brush" && hit) {
+        swingAnim = 1.0;
+        showToast("🖌️ Brush سے بلاک صاف کیا!");
+        return;
+      }
+
+      if (meta.kind === "bucket_water") {
+        if (!hit || !hit.face) return;
+        const pos = hit.object.position.clone().add(hit.face.normal);
+        const camWorldPos = new THREE.Vector3();
+        camera.getWorldPosition(camWorldPos);
+        if (pos.distanceTo(camWorldPos) > 1.1) {
+          if (hit.object.userData.type === "lava") {
+            changeBlockType(hit.object, "obsidian");
+            showToast("🟪 Lava + Water = Obsidian بن گیا!");
+          } else {
+            addBlock(pos.x, pos.y, pos.z, "water");
+            showToast("💧 پانی ڈال دیا! بکٹ خالی ہو گئی۔");
+          }
+          hotbarItems[selectedSlotIndex] = { id: "bucket", ...ITEM_META.bucket };
+          renderHotbar();
+          swingAnim = 1.0;
+          saveCurrentWorldState();
+        }
+        return;
+      }
+
+      if (meta.kind !== "block") {
+        showToast("بلاک لگانے کے لیے بلاک منتخب کریں!");
+        return;
+      }
+      if (!hit || !hit.face) return;
+      const pos = hit.object.position.clone().add(hit.face.normal);
+      const camWorldPos = new THREE.Vector3();
+      camera.getWorldPosition(camWorldPos);
+      if (pos.distanceTo(camWorldPos) > 1.1) {
+        addBlock(pos.x, pos.y, pos.z, held);
+        saveCurrentWorldState();
+      }
+    }
+
+    function setupControls() {
+      const dom = renderer.domElement;
+
+      dom.addEventListener("pointerdown", (e) => {
+        if (lookPointerId !== null) return;
+        lookPointerId = e.pointerId;
+        prevLookX = e.clientX;
+        prevLookY = e.clientY;
+        lookMovedDist = 0;
+        try { dom.setPointerCapture(e.pointerId); } catch (_) {}
+      });
+
+      dom.addEventListener("pointermove", (e) => {
+        if (e.pointerId !== lookPointerId || !worldRunning) return;
+        const dx = e.clientX - prevLookX;
+        const dy = e.clientY - prevLookY;
+        prevLookX = e.clientX;
+        prevLookY = e.clientY;
+        lookMovedDist += Math.abs(dx) + Math.abs(dy);
+
+        const factor = 0.0045 * lookSensitivity;
+        targetYaw -= dx * factor;
+        targetPitch -= dy * factor;
+        targetPitch = Math.max(-Math.PI / 2 + 0.05, Math.min(Math.PI / 2 - 0.05, targetPitch));
+      });
+
+      function finishLookPointer(e) {
+        if (e.pointerId !== lookPointerId) return;
+        lookPointerId = null;
+        if (lookMovedDist < 8 && worldRunning) {
+          if (!attackMobIfTargeted()) {
+            isMiningHeld = true;
+            updateMiningLoop();
+            setTimeout(() => { if (!btnHitDown) resetMiningState(); }, 220);
+          }
+        }
+      }
+
+      dom.addEventListener("pointerup", finishLookPointer);
+      dom.addEventListener("pointercancel", finishLookPointer);
+
+      function bindHold(id, key) {
+        const el = document.getElementById(id);
+        const down = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          moveInput[key] = true;
+        };
+        const up = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          moveInput[key] = false;
+          if (worldRunning) saveCurrentWorldState();
+        };
+        el.addEventListener("pointerdown", down);
+        el.addEventListener("pointerup", up);
+        el.addEventListener("pointercancel", up);
+        el.addEventListener("pointerleave", up);
+      }
+      bindHold("btn-fwd", "fwd");
+      bindHold("btn-back", "back");
+      bindHold("btn-left", "left");
+      bindHold("btn-right", "right");
+
+      const hitBtn = document.getElementById("btn-hit");
+      const startMineHold = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        btnHitDown = true;
+        if (!attackMobIfTargeted()) {
+          isMiningHeld = true;
+          updateMiningLoop();
+        }
+      };
+      const stopMineHold = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        btnHitDown = false;
+        resetMiningState();
+      };
+      hitBtn.addEventListener("pointerdown", startMineHold);
+      hitBtn.addEventListener("pointerup", stopMineHold);
+      hitBtn.addEventListener("pointercancel", stopMineHold);
+      hitBtn.addEventListener("pointerleave", stopMineHold);
+
+      document.getElementById("btn-jump").addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (canJump) { velY = 0.25; canJump = false; }
+      });
+
+      document.getElementById("btn-place").addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        placeTargetBlock();
+      });
+
+      document.getElementById("btn-rotate-screen").addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleOrientationMode();
+      });
+    }
+
+    function getGroundY(x, z) {
+      const rx = Math.round(x);
+      const rz = Math.round(z);
+      const feetY = playerRoot ? playerRoot.position.y : 5;
+      let highest = -999;
+
+      for (let wy = Math.ceil(feetY) + 1; wy >= BEDROCK_Y; wy--) {
+        const mesh = blockMap.get(bKey(rx, wy, rz));
+        if (!mesh) continue;
+        const bType = mesh.userData.type;
+        if (bType === "water" || bType === "leaves" || bType === "portal" || bType === "lava") continue;
+        if (Math.abs(mesh.position.x - x) < 0.62 && Math.abs(mesh.position.z - z) < 0.62) {
+          highest = mesh.position.y + 0.5;
+          break;
+        }
+      }
+      return highest === -999 ? BEDROCK_Y + 0.5 : highest;
+    }
+
+    function updateCameraRigFromPersonMode() {
+      if (!camera || !playerRoot) return;
+      if (cameraPersonMode === "1st") {
+        camera.position.set(0, 1.6, 0);
+        camera.rotation.set(pitch, 0, 0, "YXZ");
+        playerRoot.rotation.set(0, yaw, 0);
+        if (playerModelGroup) playerModelGroup.visible = false;
+        if (heldWeaponMesh) heldWeaponMesh.visible = true;
+      } else if (cameraPersonMode === "3rd") {
+        camera.position.set(0, 2.35, 3.8);
+        camera.rotation.set(pitch - 0.12, 0, 0, "YXZ");
+        playerRoot.rotation.set(0, yaw, 0);
+        if (playerModelGroup) {
+          playerModelGroup.visible = true;
+          playerModelGroup.rotation.y = 0;
+        }
+        if (heldWeaponMesh) heldWeaponMesh.visible = false;
+      } else {
+        camera.position.set(0.6, 1.9, -3.4);
+        camera.lookAt(
+          playerRoot.position.x,
+          playerRoot.position.y + 1.0,
+          playerRoot.position.z
+        );
+        playerRoot.rotation.set(0, yaw, 0);
+        if (playerModelGroup) {
+          playerModelGroup.visible = true;
+          playerModelGroup.rotation.y = Math.PI;
+        }
+        if (heldWeaponMesh) heldWeaponMesh.visible = false;
+      }
+    }
+
+    function updateDayNightCycle() {
+      if (currentDimension === "nether") {
+        const netherSky = new THREE.Color(0x3b0909);
+        scene.background = netherSky;
+        scene.fog.color.copy(netherSky);
+        ambientLight.intensity = 0.72;
+        sunLight.intensity = 0.45;
+        cloudMeshes.forEach(c => { c.visible = false; });
+        if (sunMesh) sunMesh.visible = false;
+        document.getElementById("hud-time").textContent = "Time: Nether Hell 🔥";
+        return;
+      }
+
+      cloudMeshes.forEach(c => { c.visible = true; });
+      if (sunMesh) sunMesh.visible = true;
+
+      const timeMode = activeServerConfig ? activeServerConfig.timeMode : "cycle";
+      if (timeMode === "day") {
+        dayTime = 0.25;
+      } else if (timeMode === "night") {
+        dayTime = 0.75;
+      } else if (timeMode === "fast") {
+        dayTime = (dayTime + 0.0012) % 1.0;
+      } else {
+        dayTime = (dayTime + 0.0002) % 1.0;
+      }
+
+      const sunFactor = Math.max(0.22, Math.cos((dayTime - 0.25) * Math.PI * 2) * 0.5 + 0.5);
+      const dayColor = new THREE.Color(0x8ab8f5);
+      const nightColor = new THREE.Color(0x0b132b);
+      const caveColor = new THREE.Color(0x10141d);
+      const isUnderground = playerRoot && playerRoot.position.y < -6;
+      const skyColor = isUnderground ? caveColor : nightColor.clone().lerp(dayColor, sunFactor);
+
+      scene.background = skyColor;
+      scene.fog.color.copy(skyColor);
+      ambientLight.intensity = isUnderground ? 0.45 : (0.35 + sunFactor * 0.55);
+      sunLight.intensity = isUnderground ? 0.2 : (0.25 + sunFactor * 0.65);
+
+      cloudMeshes.forEach(c => {
+        c.position.x += c.userData.speed;
+        if (c.position.x > 24) c.position.x = -24;
+      });
+      if (sunMesh && playerRoot) {
+        sunMesh.position.x = playerRoot.position.x + 16;
+        sunMesh.position.z = playerRoot.position.z - 26;
+      }
+
+      const isDay = sunFactor > 0.45;
+      document.getElementById("hud-time").textContent = "Time: " + (isUnderground ? "Underground ⛏️" : (isDay ? "Day ☀️" : "Night 🌙"));
+    }
+
+    function handlePlayerDefeatedBy(attackerIsPlayer) {
+      if (attackerIsPlayer && stolenHearts > 0) {
+        stolenHearts -= 1;
+        showToast("💔 Player نے مارا! آپ کا 1 چوری کیا ہوا Heart واپس اس کے پاس گیا!");
+      } else {
+        showToast("💀 آپ مارے گئے! Respawn ہوئے...");
+      }
+      const respawnY = Math.max(getTerrainHeight(0, 4), WATER_LEVEL) + 0.8;
+      playerRoot.position.set(0, respawnY, 4);
+      velY = 0;
+      isFalling = false;
+      fallStartY = respawnY;
+      renderSurvivalBars(getCurrentMaxHearts(), 10);
+    }
+
+    function updateMobs() {
+      const isSurvival = selectedMode === "Survival" || (activeServerConfig && activeServerConfig.type !== "Creative");
+      for (let i = mobs.length - 1; i >= 0; i--) {
+        const m = mobs[i];
+        const ud = m.userData;
+        if (ud.attackCd > 0) ud.attackCd--;
+        ud.timer--;
+
+        const dx = playerRoot.position.x - m.position.x;
+        const dz = playerRoot.position.z - m.position.z;
+        const dist = Math.hypot(dx, dz);
+
+        const canChase = ud.hostile && (!ud.isPlayerEntity || (!activeServerConfig || activeServerConfig.pvp === "on"));
+        if (canChase && dist < 12) {
+          ud.dir = Math.atan2(dx, dz);
+        } else if (ud.timer <= 0) {
+          ud.dir = Math.random() * Math.PI * 2;
+          ud.timer = 70 + Math.floor(Math.random() * 140);
+        }
+
+        if (ud.kind === "enderman" && dist < 4.5 && dist > 1.8 && Math.random() < 0.03) {
+          m.position.x = playerRoot.position.x + (Math.random() - 0.5) * 6;
+          m.position.z = playerRoot.position.z + (Math.random() - 0.5) * 6;
+        }
+
+        m.rotation.y = ud.dir;
+        const nx = m.position.x + Math.sin(ud.dir) * ud.speed;
+        const nz = m.position.z + Math.cos(ud.dir) * ud.speed;
+        const ny = getGroundY(nx, nz) + ud.yOffset;
+        m.position.set(nx, ny, nz);
+
+        if (isSurvival && selectedDifficulty !== "Peaceful" && canChase && dist < 1.55 && ud.attackCd <= 0) {
+          ud.attackCd = 55;
+          if (ud.kind === "creeper") {
+            const nextH = playerHearts - 3;
+            if (nextH <= 0) handlePlayerDefeatedBy(false);
+            else {
+              renderSurvivalBars(nextH, playerFood);
+              showToast("💥 CREEPER BLAST! (-3 ❤️)");
+            }
+            scene.remove(m);
+            mobs.splice(i, 1);
+          } else {
+            const dmg = ud.isPlayerEntity ? 2 : (ud.kind === "hoglin" || ud.kind === "blaze" ? 2 : 1);
+            const nextH = playerHearts - dmg;
+            if (nextH <= 0) {
+              handlePlayerDefeatedBy(!!ud.isPlayerEntity);
+            } else {
+              renderSurvivalBars(nextH, playerFood);
+              showToast(`⚠️ ${ud.kind.toUpperCase()} نے مارا! (-${dmg} ❤️)`);
+            }
+          }
+        }
+      }
+    }
+
+    let autoSaveTick = 0;
+
+    function animateWorld() {
+      requestAnimationFrame(animateWorld);
+      if (!worldRunning || !renderer || !playerRoot) return;
+
+      if (portalCooldown > 0) portalCooldown--;
+
+      yaw += (targetYaw - yaw) * 0.35;
+      pitch += (targetPitch - pitch) * 0.35;
+
+      updateDayNightCycle();
+      updateInfiniteChunks();
+      updateMobs();
+      updateMiningLoop();
+
+      if (heldWeaponMesh) {
+        if (swingAnim > 0) {
+          const jab = Math.sin(swingAnim * Math.PI) * 0.28;
+          heldWeaponMesh.position.z = -0.55 - jab;
+          swingAnim = Math.max(0, swingAnim - 0.12);
+        } else {
+          heldWeaponMesh.position.z = -0.55;
+        }
+      }
+
+      const isSurvival = selectedMode === "Survival" || (activeServerConfig && activeServerConfig.type !== "Creative");
+      const moveSpeed = (isSurvival && playerFood <= 0) ? 0.085 : 0.13;
+
+      const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
+      const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+      const dir = new THREE.Vector3();
+
+      if (moveInput.fwd) dir.add(forward);
+      if (moveInput.back) dir.sub(forward);
+      if (moveInput.left) dir.sub(right);
+      if (moveInput.right) dir.add(right);
+
+      if (dir.lengthSq() > 0) {
+        dir.normalize().multiplyScalar(moveSpeed);
+        playerRoot.position.add(dir);
+
+        if (isSurvival && selectedDifficulty !== "Peaceful") {
+          hungerMoveAccum += dir.length();
+          if (hungerMoveAccum >= 26) {
+            hungerMoveAccum = 0;
+            if (playerFood > 0) {
+              renderSurvivalBars(playerHearts, playerFood - 1);
+              if (playerFood === 0) {
+                showToast("🍖 کھانا ختم! اب ہاف ہارٹ (💔) کم ہوں گے! اسپیڈ بھی سست ہوئی۔");
+              }
+            }
+          }
+        }
+      }
+
+      if (isSurvival && selectedDifficulty !== "Peaceful" && playerFood <= 0) {
+        starveTick++;
+        if (starveTick >= 150) {
+          starveTick = 0;
+          const nextH = playerHearts - 0.5;
+          if (nextH <= 0) {
+            handlePlayerDefeatedBy(false);
+          } else {
+            renderSurvivalBars(nextH, 0);
+            showToast("💔 بھوک سے ہاف ہارٹ (-0.5 ❤️) کم ہوا!");
+          }
+        }
+      } else {
+        starveTick = 0;
+      }
+
+      velY -= 0.025;
+      if (velY < -0.75) velY = -0.75;
+      if (velY < -0.05 && !isFalling) {
+        isFalling = true;
+        fallStartY = playerRoot.position.y;
+      }
+      playerRoot.position.y += velY;
+
+      const groundY = getGroundY(playerRoot.position.x, playerRoot.position.z);
+      if (playerRoot.position.y <= groundY) {
+        if (isFalling) {
+          const droppedBlocks = fallStartY - groundY;
+          isFalling = false;
+          const isCreativeNow = selectedMode === "Creative" || (activeServerConfig && activeServerConfig.type === "Creative");
+          if (!isCreativeNow && droppedBlocks > 7) {
+            const dmg = Math.min(6, Math.floor((droppedBlocks - 6) * 0.6));
+            if (dmg > 0) {
+              const nextH = playerHearts - dmg;
+              if (nextH <= 0) handlePlayerDefeatedBy(false);
+              else {
+                renderSurvivalBars(nextH, playerFood);
+                showToast(`💥 گرنے سے -${dmg} Heart نقصان!`);
+              }
+            }
+          }
+        }
+        playerRoot.position.y = groundY;
+        velY = 0;
+        canJump = true;
+      } else {
+        canJump = false;
+      }
+
+      const px = Math.round(playerRoot.position.x);
+      const py = Math.round(playerRoot.position.y + 0.5);
+      const pz = Math.round(playerRoot.position.z);
+      const feetBlock = blockMap.get(bKey(px, py, pz)) || blockMap.get(bKey(px, py + 1, pz));
+      if (feetBlock && feetBlock.userData.type === "portal" && portalCooldown === 0) {
+        teleportBetweenDimensions();
+      }
+
+      updateCameraRigFromPersonMode();
+
+      const curHeight = getTerrainHeight(px, pz);
+      const curBiome = (currentDimension === "overworld" && curHeight <= WATER_LEVEL)
+        ? "Ocean 🌊"
+        : getBiomeAt(px, pz).label;
+
+      document.getElementById("hud-biome").textContent = `Biome: ${curBiome}`;
+      document.getElementById("hud-pos").textContent = `X: ${px}, Y: ${Math.round(playerRoot.position.y)}, Z: ${pz}`;
+
+      autoSaveTick++;
+      if (autoSaveTick >= 90) {
+        autoSaveTick = 0;
+        saveCurrentWorldState();
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    function resizeWorld() {
+      if (!camera || !renderer) return;
+      const w = window.innerWidth || document.documentElement.clientWidth;
+      const h = window.innerHeight || document.documentElement.clientHeight;
+      if (!w || !h) return;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    window.addEventListener("resize", resizeWorld);
+    window.addEventListener("orientationchange", () => setTimeout(resizeWorld, 200));
+  </script>
+</body>
+</html>
